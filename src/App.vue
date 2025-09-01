@@ -44,20 +44,29 @@
       </div>
       
       <!-- Mobile menu -->
-      <div v-if="mobileMenuOpen" class="md:hidden animate-slide-up">
-        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white/95 backdrop-blur-md border-t border-gray-200/50">
-          <router-link 
-            v-for="item in navigation" 
-            :key="item.name"
-            :to="item.href"
-            @click="mobileMenuOpen = false"
-            :class="[
-              $route.path === item.href ? 'nav-link-active-enhanced' : 'nav-link-enhanced',
-              'block w-full'
-            ]"
-          >
-            {{ item.name }}
-          </router-link>
+      <div v-if="mobileMenuOpen" class="md:hidden fixed inset-0 z-50">
+        <!-- Backdrop -->
+        <div 
+          class="absolute inset-0 bg-black/20 backdrop-blur-sm"
+          @click="mobileMenuOpen = false"
+        ></div>
+        
+        <!-- Menu panel -->
+        <div class="absolute top-16 left-0 right-0 bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-lg animate-slide-down">
+          <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <router-link 
+              v-for="item in navigation" 
+              :key="item.name"
+              :to="item.href"
+              @click="mobileMenuOpen = false"
+              :class="[
+                $route.path === item.href ? 'nav-link-active-enhanced' : 'nav-link-enhanced',
+                'block w-full'
+              ]"
+            >
+              {{ item.name }}
+            </router-link>
+          </div>
         </div>
       </div>
     </nav>

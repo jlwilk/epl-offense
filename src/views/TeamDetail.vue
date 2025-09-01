@@ -331,7 +331,7 @@
             v-for="player in teamPlayers"
             :key="player.id"
             class="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors duration-200 cursor-pointer"
-            @click="viewPlayer(player.id)"
+            @click="viewPlayer(player.player?.id || player.id)"
           >
             <div class="flex items-center space-x-3">
               <div class="w-12 h-12 rounded-full overflow-hidden">
@@ -525,6 +525,11 @@ export default {
     }
 
     const viewPlayer = (playerId) => {
+      console.log('🔍 TeamDetail - Navigating to player:', {
+        playerId,
+        type: typeof playerId,
+        route: `/players/${playerId}`
+      })
       router.push(`/players/${playerId}`)
     }
 

@@ -287,7 +287,8 @@
                 <div 
                   v-for="(player, index) in topScorers.slice(0, 5)" 
                   :key="player.player?.id || player.id"
-                  class="performer-card"
+                  class="performer-card cursor-pointer hover:shadow-lg transition-all duration-200"
+                  @click="viewPlayer(player.player?.id || player.id)"
                 >
                   <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-4">
@@ -333,7 +334,8 @@
                 <div 
                   v-for="(player, index) in topAssists.slice(0, 5)" 
                   :key="player.player?.id || player.id"
-                  class="performer-card"
+                  class="performer-card cursor-pointer hover:shadow-lg transition-all duration-200"
+                  @click="viewPlayer(player.player?.id || player.id)"
                 >
                   <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-4">
@@ -374,11 +376,13 @@
 
 <script>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { fixturesAPI, playerStatsAPI } from '../services/api'
 
 export default {
   name: 'Home',
   setup() {
+    const router = useRouter()
     const liveFixtures = ref([])
     const upcomingFixtures = ref([])
     const displayFixtures = ref([])
@@ -614,6 +618,11 @@ export default {
       return timeDisplay + "'"
     }
 
+    // Navigation function for players
+    const viewPlayer = (playerId) => {
+      router.push(`/players/${playerId}`)
+    }
+
     // Update elapsed time for live fixtures
     const updateElapsedTime = () => {
       if (displayFixtures.value.length > 0 && fixturesMode.value === 'live') {
@@ -661,7 +670,8 @@ export default {
       getFixtureTime,
       getFixtureTimeDisplay,
       getStatusText,
-      formatMatchTime
+      formatMatchTime,
+      viewPlayer
     }
   }
 }

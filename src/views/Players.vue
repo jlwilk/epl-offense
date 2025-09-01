@@ -13,13 +13,23 @@
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Search Players</label>
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="Search by first or last name..."
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-epl-blue focus:border-transparent"
-            @input="debouncedSearch"
-          />
+          <div class="relative">
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Search by first or last name..."
+              class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-epl-blue focus:border-transparent"
+              @input="debouncedSearch"
+            />
+            <button
+              v-if="searchQuery"
+              @click="clearSearch"
+              class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              title="Clear search"
+            >
+              ✕
+            </button>
+          </div>
         </div>
         
         <div>
@@ -279,8 +289,8 @@ export default {
       season: 2025,
       league: 39,
       position: '',
-      sortBy: 'lastname',
-      sortOrder: 'asc'
+      sortBy: 'rating',
+      sortOrder: 'desc'
     })
 
 
@@ -292,11 +302,20 @@ export default {
       searchTimeout = setTimeout(() => {
         currentPage.value = 1
         fetchPlayers()
-      }, 500)
+      }, 300) // Reduced from 500ms to 300ms for faster response
     }
 
     // Reset page when filters change
     const resetAndFetch = () => {
+      currentPage.value = 1
+      players.value = []
+      hasMore.value = true
+      fetchPlayers()
+    }
+
+    // Clear search and reset
+    const clearSearch = () => {
+      searchQuery.value = ''
       currentPage.value = 1
       players.value = []
       hasMore.value = true
@@ -329,7 +348,7 @@ export default {
 
     // Load more players for infinite scroll
     const loadMore = async () => {
-      if (loadingMore.value || !hasMore.value) return
+      if (loadingMore.value || !hasMore.value || searchQuery.value.trim()) return
       
       // Check if we've already loaded this page
       const nextPage = currentPage.value + 1
@@ -411,12 +430,12 @@ export default {
         let data
         
         if (searchQuery.value.trim()) {
-          // Search players by name
-          data = await playerStatsAPI.searchPlayers(searchQuery.value, {
-            league: filters.value.league,
-            season: filters.value.season,
-            page: currentPage.value
+          // Search players by name using the search endpoint
+          console.log('🔍 Search request:', {
+            query: searchQuery.value,
+            endpoint: '/player-stats/search'
           })
+          data = await playerStatsAPI.searchPlayers(searchQuery.value)
         } else {
           // Get league player statistics with new API parameters
           const params = {
@@ -462,23 +481,29 @@ export default {
           newPlayers = [data]
         }
         
-        if (isLoadMore) {
-          // Append new players for infinite scroll
+        if (searchQuery.value.trim()) {
+          // Search results - no pagination, replace all players
+          players.value = newPlayers
+          hasMore.value = false // No pagination for search results
+        } else if (isLoadMore) {
+          // Append new players for infinite scroll (only for non-search)
           players.value = [...players.value, ...newPlayers]
         } else {
-          // Replace players for new search/filter
+          // Replace players for new filter
           players.value = newPlayers
         }
         
-        // Check if there are more pages based on API pagination
-        const totalItems = data?.paging?.total || 0
-        const currentTotal = players.value.length
-        
-        if (totalItems > 0) {
-          hasMore.value = currentTotal < totalItems
-        } else {
-          // Fallback: if we got some players, there might be more
-          hasMore.value = newPlayers.length > 0
+        // Check if there are more pages based on API pagination (only for non-search)
+        if (!searchQuery.value.trim()) {
+          const totalItems = data?.paging?.total || 0
+          const currentTotal = players.value.length
+          
+          if (totalItems > 0) {
+            hasMore.value = currentTotal < totalItems
+          } else {
+            // Fallback: if we got some players, there might be more
+            hasMore.value = newPlayers.length > 0
+          }
         }
         
 
@@ -570,6 +595,7 @@ export default {
       observerTarget,
       debouncedSearch,
       resetAndFetch,
+      clearSearch,
       getRatingColor,
       handleSortByChange,
       fetchPlayers,
