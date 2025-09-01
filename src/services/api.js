@@ -172,11 +172,7 @@ export const standingsAPI = {
   getStandings: (params = {}) => api.get('/standings/', { params }),
 }
 
-// Defense API
-export const defenseAPI = {
-  // Get defense table
-  getDefenseTable: (params = {}) => api.get('/defense/table', { params }),
-}
+
 
 // Team Statistics API
 export const teamStatsAPI = {

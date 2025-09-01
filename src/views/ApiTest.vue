@@ -105,7 +105,6 @@ import {
   teamsAPI, 
   fixturesAPI, 
   standingsAPI, 
-  defenseAPI, 
   teamStatsAPI, 
   playerStatsAPI, 
   ingestionAPI, 
@@ -138,8 +137,7 @@ export default {
       // Standings
       'GET /standings/': () => standingsAPI.getStandings({ season: 2025, league: 39 }),
       
-      // Defense
-      'GET /defense/table': () => defenseAPI.getDefenseTable({ season: 2025, league: 39 }),
+
       
       // Team Stats
       'GET /team-stats/33/overview': () => teamStatsAPI.getTeamOverview(33, { season: 2025, league: 39 }),

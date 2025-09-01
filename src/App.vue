@@ -87,8 +87,7 @@ export default {
         { name: 'Players', href: '/players' },
         { name: 'Fixtures', href: '/fixtures' },
         { name: 'Standings', href: '/standings' },
-                       { name: 'Defense', href: '/defense' },
-               { name: 'API Test', href: '/api-test' },
+        { name: 'API Test', href: '/api-test' },
       ]
     }
   }

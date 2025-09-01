@@ -8,20 +8,9 @@
       </div>
     </div>
 
-    <!-- Search and Filters -->
+    <!-- Filters -->
     <div class="card">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Search Teams</label>
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="Search by team name..."
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-epl-blue focus:border-transparent"
-            @input="debouncedSearch"
-          />
-        </div>
-        
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Season</label>
           <select
@@ -36,24 +25,10 @@
         </div>
         
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Country</label>
-          <select
-            v-model="filters.country"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-epl-blue focus:border-transparent"
-            @change="fetchTeams"
-          >
-            <option value="">All Countries</option>
-            <option value="England">England</option>
-            <option value="Wales">Wales</option>
-          </select>
-        </div>
-        
-        <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
           <select
             v-model="filters.sortBy"
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-epl-blue focus:border-transparent"
-            @change="applySorting"
           >
             <option value="rank">League Position</option>
             <option value="name">Team Name (A-Z)</option>
@@ -61,20 +36,6 @@
             <option value="points">Points (High to Low)</option>
             <option value="points-asc">Points (Low to High)</option>
           </select>
-        </div>
-        
-        <div class="flex items-end">
-          <button
-            @click="fetchTeams"
-            class="w-full btn-primary"
-            :disabled="loading"
-          >
-            <span v-if="loading" class="flex items-center justify-center">
-              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              Loading...
-            </span>
-            <span v-else>Search</span>
-          </button>
         </div>
       </div>
     </div>
@@ -215,130 +176,22 @@ export default {
   name: 'Teams',
   setup() {
     const router = useRouter()
+    
+    // Reactive data
     const teams = ref([])
     const standings = ref([])
     const loading = ref(false)
     const error = ref(null)
-    const searchQuery = ref('')
     const currentPage = ref(1)
     const totalPages = ref(1)
     const itemsPerPage = 20
     
     const filters = ref({
       season: 2025,
-      country: '',
-      search: '',
       sortBy: 'rank'
     })
 
-    // Debounced search function
-    let searchTimeout
-    const debouncedSearch = () => {
-      clearTimeout(searchTimeout)
-      searchTimeout = setTimeout(() => {
-        filters.value.search = searchQuery.value
-        currentPage.value = 1
-        fetchTeams()
-      }, 500)
-    }
-
-    const fetchStandings = async () => {
-      try {
-        const data = await standingsAPI.getStandings({ 
-          season: filters.value.season,
-          league: 39 // Premier League
-        })
-        
-        if (data && data.league && data.league.standings) {
-          // Extract the standings array from the nested structure
-          standings.value = data.league.standings[0] || []
-        } else {
-          standings.value = []
-        }
-      } catch (err) {
-        console.error('Error fetching standings:', err)
-        standings.value = []
-      }
-    }
-
-    const fetchTeams = async () => {
-      loading.value = true
-      error.value = null
-      
-      try {
-        // Fetch both teams and standings data
-        await Promise.all([
-          fetchStandings(),
-          (async () => {
-            const params = {
-              ...filters.value,
-              page: currentPage.value
-            }
-            
-            const data = await teamsAPI.getTeams(params)
-            console.log('Teams API response:', data)
-            
-            if (data && data.response) {
-              teams.value = data.response
-              // Calculate total pages based on response
-              totalPages.value = Math.ceil((data.paging?.total || teams.value.length) / itemsPerPage)
-              console.log('Teams set:', teams.value.length, 'Total pages:', totalPages.value)
-            } else {
-              teams.value = Array.isArray(data) ? data : []
-              totalPages.value = 1
-            }
-          })()
-        ])
-      } catch (err) {
-        console.error('Error fetching teams:', err)
-        error.value = 'Failed to load teams. Please try again.'
-        teams.value = []
-      } finally {
-        loading.value = false
-      }
-    }
-
-    const getTeamPosition = (team) => {
-      if (!standings.value.length) return 'N/A'
-      
-      const teamId = team?.team?.id || team?.id
-      const standing = standings.value.find(s => s.team?.id === teamId)
-      return standing ? standing.rank : 'N/A'
-    }
-
-    const getTeamPoints = (team) => {
-      if (!standings.value.length) return 'N/A'
-      
-      const teamId = team?.team?.id || team?.id
-      const standing = standings.value.find(s => s.team?.id === teamId)
-      return standing ? standing.points : 'N/A'
-    }
-
-    const getTeamRank = (team) => {
-      if (!standings.value.length) return 999 // High number for teams not in standings
-      
-      const teamId = team?.team?.id || team?.id
-      const standing = standings.value.find(s => s.team?.id === teamId)
-      return standing ? standing.rank : 999
-    }
-
-    const applySorting = () => {
-      // No need to refetch data, just re-sort the existing teams
-      console.log('Applying sorting:', filters.value.sortBy)
-    }
-
-    const changePage = (page) => {
-      if (page >= 1 && page <= totalPages.value) {
-        currentPage.value = page
-        fetchTeams()
-      }
-    }
-
-    const viewTeam = (teamId) => {
-      router.push(`/teams/${teamId}`)
-    }
-
-    // Computed properties for pagination
+    // Computed properties
     const visiblePages = computed(() => {
       const pages = []
       const start = Math.max(1, currentPage.value - 2)
@@ -351,7 +204,6 @@ export default {
       return pages
     })
 
-    // Computed property for sorted teams
     const sortedTeams = computed(() => {
       if (!teams.value.length) return []
       
@@ -389,29 +241,123 @@ export default {
       }
     })
 
+    // API functions
+    const fetchStandings = async () => {
+      try {
+        const data = await standingsAPI.getStandings({ 
+          season: filters.value.season,
+          league: 39 // Premier League
+        })
+        
+        if (data && data[0] && data[0].league && data[0].league.standings) {
+          standings.value = data[0].league.standings[0] || []
+        } else {
+          standings.value = []
+        }
+      } catch (err) {
+        console.error('Error fetching standings:', err)
+        standings.value = []
+      }
+    }
+
+    const fetchTeams = async () => {
+      loading.value = true
+      error.value = null
+      
+      try {
+        await Promise.all([
+          fetchStandings(),
+          (async () => {
+            const params = {
+              ...filters.value,
+              page: currentPage.value
+            }
+            
+            const data = await teamsAPI.getTeams(params)
+            
+            if (data && data.response) {
+              teams.value = data.response
+              totalPages.value = Math.ceil((data.paging?.total || teams.value.length) / itemsPerPage)
+            } else {
+              teams.value = Array.isArray(data) ? data : []
+              totalPages.value = 1
+            }
+          })()
+        ])
+      } catch (err) {
+        console.error('Error fetching teams:', err)
+        error.value = 'Failed to load teams. Please try again.'
+        teams.value = []
+      } finally {
+        loading.value = false
+      }
+    }
+
+    // Helper functions - Standings
+    const getTeamPosition = (team) => {
+      if (!standings.value.length) return 'N/A'
+      
+      const teamId = team?.team?.id || team?.id
+      const standing = standings.value.find(s => s.team?.id === teamId)
+      return standing ? standing.rank : 'N/A'
+    }
+
+    const getTeamPoints = (team) => {
+      if (!standings.value.length) return 'N/A'
+      
+      const teamId = team?.team?.id || team?.id
+      const standing = standings.value.find(s => s.team?.id === teamId)
+      return standing ? standing.points : 'N/A'
+    }
+
+    const getTeamRank = (team) => {
+      if (!standings.value.length) return 999 // High number for teams not in standings
+      
+      const teamId = team?.team?.id || team?.id
+      const standing = standings.value.find(s => s.team?.id === teamId)
+      return standing ? standing.rank : 999
+    }
+
+    // Navigation functions
+    const changePage = (page) => {
+      if (page >= 1 && page <= totalPages.value) {
+        currentPage.value = page
+        fetchTeams()
+      }
+    }
+
+    const viewTeam = (teamId) => {
+      router.push(`/teams/${teamId}`)
+    }
+
+    // Lifecycle
     onMounted(() => {
       fetchTeams()
     })
 
     return {
+      // Reactive data
       teams,
       standings,
       sortedTeams,
       loading,
       error,
-      searchQuery,
       filters,
       currentPage,
       totalPages,
+      
+      // Computed properties
       visiblePages,
-      debouncedSearch,
+      
+      // Functions
       fetchTeams,
       changePage,
       viewTeam,
+      
+      // Helper functions
       getTeamPosition,
       getTeamPoints,
-      getTeamRank,
-      applySorting
+      getTeamRank
     }
   }
 }

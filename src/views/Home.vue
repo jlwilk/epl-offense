@@ -46,82 +46,103 @@
       </div>
     </div>
 
-    <!-- Live Fixtures Section -->
+    <!-- Fixtures Section -->
     <div class="card">
       <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-bold text-gray-900">Live Fixtures</h2>
+        <h2 class="text-2xl font-bold text-gray-900">{{ fixturesSectionTitle }}</h2>
         <router-link to="/fixtures" class="text-epl-blue hover:text-epl-purple font-medium">
           View All →
         </router-link>
       </div>
       
-      <div v-if="liveFixtures.length === 0" class="text-center py-8 text-gray-500">
+      <div v-if="displayFixtures.length === 0" class="text-center py-8 text-gray-500">
         <div class="text-6xl mb-4">⚽</div>
-        <p>No live fixtures at the moment</p>
-        <p class="text-sm">Check back later for live matches</p>
+        <p>{{ noFixturesMessage }}</p>
+        <p class="text-sm">{{ noFixturesSubMessage }}</p>
       </div>
       
       <div v-else class="space-y-4">
         <div 
-          v-for="fixture in liveFixtures.slice(0, 3)" 
+          v-for="fixture in displayFixtures.slice(0, 3)" 
           :key="`${fixture.fixture?.id || fixture.id}-${fixture.fixture?.status?.elapsed || fixture.elapsed || 0}-${fixture.fixture?.status?.extra || 0}`"
-          class="bg-gradient-to-r from-epl-blue to-epl-purple text-white rounded-lg p-4"
+          :class="[
+            'rounded-lg p-4',
+            isLiveFixture(fixture) 
+              ? 'bg-gradient-to-r from-epl-blue to-epl-purple text-white' 
+              : 'bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200'
+          ]"
         >
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-              <div class="text-sm opacity-75">{{ fixture.league?.name }}</div>
-              <div class="text-xs bg-red-500 px-2 py-1 rounded-full animate-pulse">
-                LIVE
+                      <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-4">
+                <div :class="isLiveFixture(fixture) ? 'text-sm opacity-75' : 'text-sm text-gray-600'">
+                  {{ fixture.league?.name }}
+                </div>
+                <div 
+                  v-if="isLiveFixture(fixture)"
+                  class="text-xs bg-red-500 px-2 py-1 rounded-full animate-pulse"
+                >
+                  LIVE
+                </div>
+                <div 
+                  v-else
+                  class="text-xs bg-gray-500 px-2 py-1 rounded-full"
+                >
+                  {{ getFixtureStatus(fixture) }}
+                </div>
+              </div>
+              <div :class="isLiveFixture(fixture) ? 'text-sm opacity-75' : 'text-sm text-gray-600'">
+                {{ getFixtureTime(fixture) }}
               </div>
             </div>
-            <div class="text-sm opacity-75">{{ getStatusText(fixture.fixture?.status?.elapsed || fixture.status) }}'</div>
-          </div>
           
-          <div class="flex items-center justify-between mt-3">
-            <div class="flex items-center space-x-3">
-              <!-- Home Team Logo -->
-              <div class="w-8 h-8 rounded-full overflow-hidden bg-white flex items-center justify-center">
-                <img 
-                  v-if="fixture.teams?.home?.logo" 
-                  :src="fixture.teams.home.logo" 
-                  :alt="fixture.teams.home.name"
-                  class="w-full h-full object-cover"
-                  @error="$event.target.style.display='none'"
-                />
-                <span v-else class="text-epl-blue font-bold text-xs">
-                  {{ (fixture.teams?.home?.name || 'H')?.charAt(0) }}
+                      <div class="flex items-center justify-between mt-3">
+              <div class="flex items-center space-x-3">
+                <!-- Home Team Logo -->
+                <div class="w-8 h-8 rounded-full overflow-hidden bg-white flex items-center justify-center">
+                  <img 
+                    v-if="fixture.teams?.home?.logo" 
+                    :src="fixture.teams.home.logo" 
+                    :alt="fixture.teams.home.name"
+                    class="w-full h-full object-cover"
+                    @error="$event.target.style.display='none'"
+                  />
+                  <span :class="isLiveFixture(fixture) ? 'text-epl-blue font-bold text-xs' : 'text-gray-700 font-bold text-xs'">
+                    {{ (fixture.teams?.home?.name || 'H')?.charAt(0) }}
+                  </span>
+                </div>
+                <span :class="isLiveFixture(fixture) ? 'font-semibold' : 'font-semibold text-gray-900'">
+                  {{ fixture.teams?.home?.name }}
                 </span>
               </div>
-              <span class="font-semibold">{{ fixture.teams?.home?.name }}</span>
-            </div>
-            
-            <div class="text-center">
-              <div class="text-2xl font-bold">{{ fixture.goals?.home || 0 }} - {{ fixture.goals?.away || 0 }}</div>
-              <div class="text-xs opacity-75">
-                <span v-if="fixture.fixture?.status?.short === 'LIVE' || fixture.fixture?.status?.short === 'HT'">
-                  {{ formatMatchTime(fixture.elapsed || fixture.fixture?.status?.elapsed, fixture.fixture?.status?.extra) }}'
+              
+              <div class="text-center">
+                <div :class="isLiveFixture(fixture) ? 'text-2xl font-bold' : 'text-2xl font-bold text-gray-900'">
+                  {{ fixture.goals?.home || 0 }} - {{ fixture.goals?.away || 0 }}
+                </div>
+                <div :class="isLiveFixture(fixture) ? 'text-xs opacity-75' : 'text-xs text-gray-600'">
+                  {{ getFixtureTimeDisplay(fixture) }}
+                </div>
+              </div>
+              
+              <div class="flex items-center space-x-3">
+                <span :class="isLiveFixture(fixture) ? 'font-semibold' : 'font-semibold text-gray-900'">
+                  {{ fixture.teams?.away?.name }}
                 </span>
-                <span v-else>{{ getStatusText(fixture.fixture?.status?.elapsed || fixture.status) }}'</span>
+                <!-- Away Team Logo -->
+                <div class="w-8 h-8 rounded-full overflow-hidden bg-white flex items-center justify-center">
+                  <img 
+                    v-if="fixture.teams?.away?.logo" 
+                    :src="fixture.teams.away.logo" 
+                    :alt="fixture.teams.away.name"
+                    class="w-full h-full object-cover"
+                    @error="$event.target.style.display='none'"
+                  />
+                  <span :class="isLiveFixture(fixture) ? 'text-epl-blue font-bold text-xs' : 'text-gray-700 font-bold text-xs'">
+                    {{ (fixture.teams?.away?.name || 'A')?.charAt(0) }}
+                  </span>
+                </div>
               </div>
             </div>
-            
-            <div class="flex items-center space-x-3">
-              <span class="font-semibold">{{ fixture.teams?.away?.name }}</span>
-              <!-- Away Team Logo -->
-              <div class="w-8 h-8 rounded-full overflow-hidden bg-white flex items-center justify-center">
-                <img 
-                  v-if="fixture.teams?.away?.logo" 
-                  :src="fixture.teams.away.logo" 
-                  :alt="fixture.teams.away.name"
-                  class="w-full h-full object-cover"
-                  @error="$event.target.style.display='none'"
-                />
-                <span v-else class="text-epl-blue font-bold text-xs">
-                  {{ (fixture.teams?.away?.name || 'A')?.charAt(0) }}
-                </span>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -156,16 +177,16 @@
         </div>
       </div>
 
-      <!-- Defense Section -->
+      <!-- Fixtures Section -->
       <div class="card hover:shadow-xl transition-shadow duration-300">
         <div class="text-center space-y-4">
-          <div class="w-16 h-16 bg-gradient-to-br from-epl-green to-epl-blue rounded-full flex items-center justify-center mx-auto">
-            <span class="text-white text-2xl">🛡️</span>
+          <div class="w-16 h-16 bg-gradient-to-br from-epl-red to-epl-gold rounded-full flex items-center justify-center mx-auto">
+            <span class="text-white text-2xl">📅</span>
           </div>
-          <h3 class="text-xl font-semibold text-gray-900">Defense</h3>
-          <p class="text-gray-600">Analyze defensive performance, clean sheets, and defensive statistics.</p>
-          <router-link to="/defense" class="btn-primary w-full">
-            View Defense
+          <h3 class="text-xl font-semibold text-gray-900">Fixtures</h3>
+          <p class="text-gray-600">View upcoming matches, live scores, and fixture schedules for the season.</p>
+          <router-link to="/fixtures" class="btn-primary w-full">
+            View Fixtures
           </router-link>
         </div>
       </div>
@@ -246,13 +267,16 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { fixturesAPI, playerStatsAPI } from '../services/api'
 
 export default {
   name: 'Home',
   setup() {
     const liveFixtures = ref([])
+    const upcomingFixtures = ref([])
+    const displayFixtures = ref([])
+    const fixturesMode = ref('live') // 'live' or 'upcoming'
     const topScorers = ref([])
     const topAssists = ref([])
     const quickStats = ref({
@@ -272,20 +296,16 @@ export default {
         const data = await fixturesAPI.getLiveFixtures()
         
         if (data && data.response) {
-          // Handle response structure
           const newFixtures = Array.isArray(data.response) ? data.response : []
-          // Only update if data actually changed to prevent flashing
           if (JSON.stringify(newFixtures) !== JSON.stringify(liveFixtures.value)) {
             liveFixtures.value = newFixtures
           }
         } else if (Array.isArray(data)) {
-          // Handle direct array
           const newFixtures = data
           if (JSON.stringify(newFixtures) !== JSON.stringify(liveFixtures.value)) {
             liveFixtures.value = newFixtures
           }
         } else if (data && data.fixture) {
-          // Handle single fixture object (unwrapped by interceptor)
           const newFixtures = [data]
           if (JSON.stringify(newFixtures) !== JSON.stringify(liveFixtures.value)) {
             liveFixtures.value = newFixtures
@@ -297,10 +317,51 @@ export default {
         }
       } catch (error) {
         console.error('Error fetching live fixtures:', error)
-        // Only clear if we had data before
         if (liveFixtures.value.length > 0) {
           liveFixtures.value = []
         }
+      }
+    }
+
+    const fetchUpcomingFixtures = async () => {
+      try {
+        const data = await fixturesAPI.getFixtures({ 
+          league: 39, 
+          season: 2025, 
+          status: 'NS',
+          limit: 10 
+        })
+        
+        if (data && data.response) {
+          const newFixtures = Array.isArray(data.response) ? data.response : []
+          if (JSON.stringify(newFixtures) !== JSON.stringify(upcomingFixtures.value)) {
+            upcomingFixtures.value = newFixtures
+          }
+        } else if (Array.isArray(data)) {
+          const newFixtures = data
+          if (JSON.stringify(newFixtures) !== JSON.stringify(upcomingFixtures.value)) {
+            upcomingFixtures.value = newFixtures
+          }
+        } else {
+          if (upcomingFixtures.value.length > 0) {
+            upcomingFixtures.value = []
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching upcoming fixtures:', error)
+        if (upcomingFixtures.value.length > 0) {
+          upcomingFixtures.value = []
+        }
+      }
+    }
+
+    const updateDisplayFixtures = () => {
+      if (liveFixtures.value.length > 0) {
+        displayFixtures.value = liveFixtures.value
+        fixturesMode.value = 'live'
+      } else {
+        displayFixtures.value = upcomingFixtures.value
+        fixturesMode.value = 'upcoming'
       }
     }
 
@@ -348,7 +409,82 @@ export default {
       }
     }
 
-    // Helper function for status text
+    // Computed properties
+    const fixturesSectionTitle = computed(() => {
+      return fixturesMode.value === 'live' ? 'Live Fixtures' : 'Upcoming Fixtures'
+    })
+
+    const noFixturesMessage = computed(() => {
+      return fixturesMode.value === 'live' 
+        ? 'No live fixtures at the moment' 
+        : 'No upcoming fixtures available'
+    })
+
+    const noFixturesSubMessage = computed(() => {
+      return fixturesMode.value === 'live' 
+        ? 'Check back later for live matches' 
+        : 'Check the fixtures page for more details'
+    })
+
+    // Helper functions
+    const isLiveFixture = (fixture) => {
+      const status = fixture.fixture?.status?.short || fixture.status?.short || fixture.status
+      return status === 'LIVE' || status === 'HT' || status === '1H' || status === '2H'
+    }
+
+    const getFixtureStatus = (fixture) => {
+      const status = fixture.fixture?.status?.short || fixture.status?.short || fixture.status
+      switch (status) {
+        case 'NS': return 'UPCOMING'
+        case 'FT': return 'FINISHED'
+        case 'HT': return 'HALF TIME'
+        case '1H': return '1ST HALF'
+        case '2H': return '2ND HALF'
+        default: return status || 'UNKNOWN'
+      }
+    }
+
+    const getFixtureTime = (fixture) => {
+      if (isLiveFixture(fixture)) {
+        return `${fixture.fixture?.status?.elapsed || fixture.elapsed || 0}'`
+      } else {
+        const date = fixture.fixture?.date || fixture.date
+        if (date) {
+          return new Date(date).toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: false 
+          })
+        }
+        return 'TBD'
+      }
+    }
+
+    const getFixtureTimeDisplay = (fixture) => {
+      if (isLiveFixture(fixture)) {
+        const elapsed = fixture.fixture?.status?.elapsed || fixture.elapsed || 0
+        const extra = fixture.fixture?.status?.extra || 0
+        let timeDisplay = elapsed.toString()
+        if (extra && extra > 0) {
+          timeDisplay += `+${extra}`
+        }
+        return timeDisplay + "'"
+      } else {
+        const date = fixture.fixture?.date || fixture.date
+        if (date) {
+          return new Date(date).toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric',
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: false 
+          })
+        }
+        return 'TBD'
+      }
+    }
+
+    // Helper function for status text (legacy)
     const getStatusText = (status) => {
       switch (status) {
         case 'LIVE': return 'LIVE'
@@ -361,7 +497,7 @@ export default {
       }
     }
 
-    // Helper function to format match time with extra time
+    // Helper function to format match time with extra time (legacy)
     const formatMatchTime = (elapsed, extra) => {
       if (!elapsed && elapsed !== 0) return 'N/A'
       
@@ -374,30 +510,50 @@ export default {
 
     // Update elapsed time for live fixtures
     const updateElapsedTime = () => {
-      if (liveFixtures.value.length > 0) {
+      if (displayFixtures.value.length > 0 && fixturesMode.value === 'live') {
         // Trigger reactivity by creating a new array reference
-        liveFixtures.value = [...liveFixtures.value]
+        displayFixtures.value = [...displayFixtures.value]
       }
     }
 
     onMounted(() => {
       fetchLiveFixtures()
+      fetchUpcomingFixtures()
       fetchTopScorers()
       fetchTopAssists()
+      
+      // Update display fixtures after initial fetch
+      setTimeout(updateDisplayFixtures, 1000)
       
       // Refresh live fixtures every 30 seconds (silent update)
       setInterval(fetchLiveFixtures, 30000)
       
-      // Update elapsed time every minute for live fixtures
-      setInterval(updateElapsedTime, 60000)
+      // Refresh upcoming fixtures every 5 minutes
+      setInterval(fetchUpcomingFixtures, 300000)
+      
+      // Update display fixtures and elapsed time every minute
+      setInterval(() => {
+        updateDisplayFixtures()
+        updateElapsedTime()
+      }, 60000)
     })
 
     return {
       liveFixtures,
+      upcomingFixtures,
+      displayFixtures,
+      fixturesMode,
       topScorers,
       topAssists,
       quickStats,
       loading,
+      fixturesSectionTitle,
+      noFixturesMessage,
+      noFixturesSubMessage,
+      isLiveFixture,
+      getFixtureStatus,
+      getFixtureTime,
+      getFixtureTimeDisplay,
       getStatusText,
       formatMatchTime
     }
