@@ -1,197 +1,228 @@
 <template>
-  <div class="space-y-6">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <h1 class="text-3xl font-bold text-gray-900">Premier League Standings</h1>
-        <p class="text-gray-600 mt-2">Current league table and team rankings</p>
-      </div>
+  <div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+    <!-- Hero Header -->
+    <div class="relative overflow-hidden bg-gradient-to-br from-epl-blue/5 via-epl-purple/5 to-epl-gold/5 py-12">
+      <div class="absolute inset-0 bg-pattern opacity-30"></div>
+      <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+          <div class="text-center lg:text-left mb-8 lg:mb-0">
+            <div class="flex items-center justify-center lg:justify-start space-x-3 mb-4">
+              <div class="w-12 h-12 bg-gradient-to-br from-epl-blue to-epl-purple rounded-xl flex items-center justify-center shadow-lg">
+                <span class="text-white text-xl">🏆</span>
+              </div>
+              <div>
+                <h1 class="text-4xl md:text-5xl font-bold text-gradient">Premier League</h1>
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-700">Standings</h2>
+              </div>
+            </div>
+            <p class="text-xl text-gray-600 max-w-2xl">Current league table and team rankings for the {{ selectedSeason }}/{{ selectedSeason + 1 }} season</p>
+          </div>
 
-      <!-- Season Selector -->
-      <div class="flex items-center space-x-4 mt-4 sm:mt-0">
-        <label class="text-sm font-medium text-gray-700">Season:</label>
-        <select
-          v-model.number="selectedSeason"
-          @change="fetchStandings"
-          class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-epl-blue focus:border-transparent"
-        >
-          <option :value="2025">2025</option>
-          <option :value="2024">2024</option>
-          <option :value="2023">2023</option>
-        </select>
+          <!-- Season Selector -->
+          <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <label class="text-lg font-semibold text-gray-700">Season:</label>
+            <select
+              v-model.number="selectedSeason"
+              @change="fetchStandings"
+              class="px-6 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-epl-blue focus:border-transparent bg-white shadow-lg font-medium text-lg"
+            >
+              <option :value="2025">2025/26</option>
+              <option :value="2024">2024/25</option>
+              <option :value="2023">2023/24</option>
+            </select>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Loading State -->
-    <div v-if="loading" class="text-center py-12">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-epl-blue mx-auto mb-4"></div>
-      <p class="text-gray-600">Loading standings...</p>
-    </div>
-
-
-
-    <!-- Content States -->
-    <div v-if="!loading">
-      <!-- Error State -->
-      <div v-if="error" class="card text-center py-12">
-        <div class="text-6xl mb-4">⚠️</div>
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">Error Loading Standings</h3>
-        <p class="text-gray-600 mb-4">{{ error }}</p>
-        <button @click="fetchStandings" class="btn-primary">Try Again</button>
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <!-- Loading State -->
+      <div v-if="loading" class="text-center py-16">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-epl-blue mx-auto mb-6"></div>
+        <h3 class="text-2xl font-bold text-gray-900 mb-2">Loading Standings</h3>
+        <p class="text-gray-600">Fetching the latest Premier League table...</p>
       </div>
 
-      <!-- Standings Table OR Empty State -->
-      <template v-else>
-        <template v-if="standings.length > 0">
-          <div class="card overflow-hidden">
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pos</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Team</th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">P</th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">W</th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">D</th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">L</th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">GF</th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">GA</th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">GD</th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Pts</th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Form</th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                  <tr
-                    v-for="(team, index) in standings"
-                    :key="team?.team?.id ?? index"
-                    :class="[
-                      'hover:bg-gray-50 transition-colors duration-150 cursor-pointer',
-                      getPositionClass(team.rank)
-                    ]"
-                    @click="team?.team?.id && viewTeam(team.team.id)"
-                  >
-                    <!-- Position -->
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="flex items-center">
-                        <span 
-                          :class="[
-                            'inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold',
-                            getPositionBadgeClass(team.rank)
-                          ]"
-                        >
-                          {{ team.rank }}
-                        </span>
-                      </div>
-                    </td>
+      <!-- Content States -->
+      <div v-if="!loading">
+        <!-- Error State -->
+        <div v-if="error" class="card-enhanced text-center py-16">
+          <div class="text-8xl mb-6">⚠️</div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-4">Error Loading Standings</h3>
+          <p class="text-gray-600 mb-8 text-lg">{{ error }}</p>
+          <button @click="fetchStandings" class="btn-primary text-lg px-8 py-3">
+            Try Again
+          </button>
+        </div>
 
-                    <!-- Team -->
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="flex items-center">
-                        <div class="w-10 h-10 bg-gradient-to-br from-epl-blue to-epl-purple rounded-full flex items-center justify-center mr-3">
-                          <span class="text-white text-sm font-bold">
-                            {{ team?.team?.name?.charAt(0) || 'T' }}
+        <!-- Standings Table OR Empty State -->
+        <template v-else>
+          <template v-if="standings.length > 0">
+            <div class="card-enhanced overflow-hidden">
+              <div class="p-6 border-b border-gray-200">
+                <h3 class="text-2xl font-bold text-gray-900">League Table</h3>
+                <p class="text-gray-600 mt-1">Current standings for {{ selectedSeason }}/{{ selectedSeason + 1 }} season</p>
+              </div>
+              
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
+                    <tr>
+                      <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Pos</th>
+                      <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Team</th>
+                      <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">P</th>
+                      <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">W</th>
+                      <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">D</th>
+                      <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">L</th>
+                      <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">GF</th>
+                      <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">GA</th>
+                      <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">GD</th>
+                      <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">Pts</th>
+                      <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">Form</th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    <tr
+                      v-for="(team, index) in standings"
+                      :key="team?.team?.id ?? index"
+                      :class="[
+                        'hover:bg-gray-50 transition-all duration-200 cursor-pointer group',
+                        getPositionClass(team.rank)
+                      ]"
+                      @click="team?.team?.id && viewTeam(team.team.id)"
+                    >
+                      <!-- Position -->
+                      <td class="px-6 py-6 whitespace-nowrap">
+                        <div class="flex items-center">
+                          <span 
+                            :class="[
+                              'inline-flex items-center justify-center w-10 h-10 rounded-full text-lg font-bold shadow-md',
+                              getPositionBadgeClass(team.rank)
+                            ]"
+                          >
+                            {{ team.rank }}
                           </span>
                         </div>
-                        <div>
-                          <div class="text-sm font-medium text-gray-900">{{ team?.team?.name || 'Team Name' }}</div>
-                          <div class="text-sm text-gray-500">{{ team?.team?.country || 'England' }}</div>
+                      </td>
+
+                      <!-- Team -->
+                      <td class="px-6 py-6 whitespace-nowrap">
+                        <div class="flex items-center">
+                          <div class="w-12 h-12 bg-gradient-to-br from-epl-blue to-epl-purple rounded-xl flex items-center justify-center mr-4 shadow-lg group-hover:shadow-glow transition-all duration-300">
+                            <span class="text-white text-lg font-bold">
+                              {{ team?.team?.name?.charAt(0) || 'T' }}
+                            </span>
+                          </div>
+                          <div>
+                            <div class="text-lg font-bold text-gray-900 group-hover:text-epl-blue transition-colors duration-200">
+                              {{ team?.team?.name || 'Team Name' }}
+                            </div>
+                            <div class="text-sm text-gray-500">{{ team?.team?.country || 'England' }}</div>
+                          </div>
                         </div>
-                      </div>
-                    </td>
+                      </td>
 
-                    <!-- Matches Played -->
-                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
-                      {{ team.all.played }}
-                    </td>
+                      <!-- Matches Played -->
+                      <td class="px-6 py-6 whitespace-nowrap text-center">
+                        <span class="text-lg font-bold text-gray-900">{{ team.all.played }}</span>
+                      </td>
 
-                    <!-- Wins -->
-                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
-                      <span class="font-medium text-epl-green">{{ team.all.win }}</span>
-                    </td>
+                      <!-- Wins -->
+                      <td class="px-6 py-6 whitespace-nowrap text-center">
+                        <span class="text-lg font-bold text-epl-green">{{ team.all.win }}</span>
+                      </td>
 
-                    <!-- Draws -->
-                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
-                      <span class="font-medium text-epl-gold">{{ team.all.draw }}</span>
-                    </td>
+                      <!-- Draws -->
+                      <td class="px-6 py-6 whitespace-nowrap text-center">
+                        <span class="text-lg font-bold text-epl-gold">{{ team.all.draw }}</span>
+                      </td>
 
-                    <!-- Losses -->
-                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
-                      <span class="font-medium text-epl-red">{{ team.all.lose }}</span>
-                    </td>
+                      <!-- Losses -->
+                      <td class="px-6 py-6 whitespace-nowrap text-center">
+                        <span class="text-lg font-bold text-epl-red">{{ team.all.lose }}</span>
+                      </td>
 
-                    <!-- Goals For -->
-                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
-                      <span class="font-medium text-epl-blue">{{ team.all.goals.for }}</span>
-                    </td>
+                      <!-- Goals For -->
+                      <td class="px-6 py-6 whitespace-nowrap text-center">
+                        <span class="text-lg font-bold text-epl-blue">{{ team.all.goals.for }}</span>
+                      </td>
 
-                    <!-- Goals Against -->
-                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
-                      <span class="font-medium text-epl-purple">{{ team.all.goals.against }}</span>
-                    </td>
+                      <!-- Goals Against -->
+                      <td class="px-6 py-6 whitespace-nowrap text-center">
+                        <span class="text-lg font-bold text-epl-purple">{{ team.all.goals.against }}</span>
+                      </td>
 
-                    <!-- Goal Difference -->
-                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
-                      <span 
-                        :class="[
-                          'font-medium',
-                          team.goalsDiff > 0 ? 'text-epl-green' : team.goalsDiff < 0 ? 'text-epl-red' : 'text-gray-900'
-                        ]"
-                      >
-                        {{ team.goalsDiff > 0 ? '+' : '' }}{{ team.goalsDiff }}
-                      </span>
-                    </td>
-
-                    <!-- Points -->
-                    <td class="px-6 py-4 whitespace-nowrap text-center">
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-epl-blue text-white">
-                        {{ team.points }}
-                      </span>
-                    </td>
-
-                    <!-- Form -->
-                    <td class="px-6 py-4 whitespace-nowrap text-center">
-                      <div class="flex items-center justify-center space-x-1">
-                        <span
-                          v-for="(result, formIndex) in (team.form ? team.form.slice(-5) : '')"
-                          :key="formIndex"
+                      <!-- Goal Difference -->
+                      <td class="px-6 py-6 whitespace-nowrap text-center">
+                        <span 
                           :class="[
-                            'w-3 h-3 rounded-full',
-                            getFormResultClass(result)
+                            'text-lg font-bold px-3 py-1 rounded-full',
+                            team.goalsDiff > 0 ? 'bg-green-100 text-epl-green' : team.goalsDiff < 0 ? 'bg-red-100 text-epl-red' : 'bg-gray-100 text-gray-900'
                           ]"
-                          :title="getFormResultTitle(result)"
-                        ></span>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                        >
+                          {{ team.goalsDiff > 0 ? '+' : '' }}{{ team.goalsDiff }}
+                        </span>
+                      </td>
+
+                      <!-- Points -->
+                      <td class="px-6 py-6 whitespace-nowrap text-center">
+                        <span class="inline-flex items-center px-4 py-2 rounded-full text-lg font-bold bg-gradient-to-r from-epl-blue to-epl-purple text-white shadow-lg">
+                          {{ team.points }}
+                        </span>
+                      </td>
+
+                      <!-- Form -->
+                      <td class="px-6 py-6 whitespace-nowrap text-center">
+                        <div class="flex items-center justify-center space-x-1">
+                          <span
+                            v-for="(result, formIndex) in (team.form ? team.form.slice(-5) : '')"
+                            :key="formIndex"
+                            :class="[
+                              'w-4 h-4 rounded-full shadow-sm',
+                              getFormResultClass(result)
+                            ]"
+                            :title="getFormResultTitle(result)"
+                          ></span>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
+          </template>
+          <div v-else class="card-enhanced text-center py-16">
+            <div class="text-8xl mb-6 animate-bounce-gentle">🏆</div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-4">No Standings Available</h3>
+            <p class="text-gray-600 text-lg">Standings data is not available for the selected season.</p>
           </div>
         </template>
-        <div v-else class="card text-center py-12">
-          <div class="text-6xl mb-4">🏆</div>
-          <h3 class="text-xl font-semibold text-gray-900 mb-2">No Standings Available</h3>
-          <p class="text-gray-600">Standings data is not available for the selected season.</p>
-        </div>
-      </template>
+      </div>
     </div>
 
     <!-- League Info -->
-    <div v-if="leagueInfo" class="card">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">League Information</h3>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="text-center">
-          <div class="text-2xl font-bold text-epl-blue">{{ leagueInfo.name }}</div>
-          <div class="text-sm text-gray-500">League</div>
+    <div v-if="leagueInfo" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+      <div class="card-enhanced">
+        <div class="flex items-center space-x-3 mb-6">
+          <div class="w-10 h-10 bg-gradient-to-br from-epl-blue to-epl-purple rounded-xl flex items-center justify-center">
+            <span class="text-white text-lg">ℹ️</span>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900">League Information</h3>
         </div>
-        <div class="text-center">
-          <div class="text-2xl font-bold text-epl-purple">{{ leagueInfo.country }}</div>
-          <div class="text-sm text-gray-500">Country</div>
-        </div>
-        <div class="text-center">
-          <div class="text-2xl font-bold text-epl-gold">{{ selectedSeason }}</div>
-          <div class="text-sm text-gray-500">Season</div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div class="text-center p-6 bg-gradient-to-br from-epl-blue/5 to-epl-purple/5 rounded-xl">
+            <div class="text-3xl font-bold text-epl-blue mb-2">{{ leagueInfo.name }}</div>
+            <div class="text-sm text-gray-600 font-medium">League</div>
+          </div>
+          <div class="text-center p-6 bg-gradient-to-br from-epl-purple/5 to-epl-gold/5 rounded-xl">
+            <div class="text-3xl font-bold text-epl-purple mb-2">{{ leagueInfo.country }}</div>
+            <div class="text-sm text-gray-600 font-medium">Country</div>
+          </div>
+          <div class="text-center p-6 bg-gradient-to-br from-epl-gold/5 to-epl-red/5 rounded-xl">
+            <div class="text-3xl font-bold text-epl-gold mb-2">{{ selectedSeason }}/{{ selectedSeason + 1 }}</div>
+            <div class="text-sm text-gray-600 font-medium">Season</div>
+          </div>
         </div>
       </div>
     </div>

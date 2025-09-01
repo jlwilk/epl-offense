@@ -1,273 +1,268 @@
 <template>
-  <div class="space-y-6">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <h1 class="text-3xl font-bold text-gray-900">Premier League Fixtures</h1>
-        <p class="text-gray-600 mt-2">Match schedules, results, and live updates</p>
-      </div>
-    </div>
-
-    <!-- Search and Filters -->
-    <div class="card">
-      <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Season</label>
-          <select
-            v-model="filters.season"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-epl-blue focus:border-transparent"
-            @change="fetchFixtures"
-          >
-            <option value="2025">2025</option>
-            <option value="2024">2024</option>
-            <option value="2023">2023</option>
-          </select>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">League</label>
-          <select
-            v-model="filters.league"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-epl-blue focus:border-transparent"
-            @change="fetchFixtures"
-          >
-            <option value="39">Premier League</option>
-            <option value="140">La Liga</option>
-            <option value="135">Serie A</option>
-            <option value="78">Bundesliga</option>
-          </select>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-          <select
-            v-model="filters.status"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-epl-blue focus:border-transparent"
-            @change="fetchFixtures"
-          >
-            <option value="">All Status</option>
-            <option value="NS">Not Started</option>
-            <option value="1H">First Half</option>
-            <option value="HT">Half Time</option>
-            <option value="2H">Second Half</option>
-            <option value="FT">Full Time</option>
-            <option value="LIVE">Live</option>
-          </select>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">From Date</label>
-          <input
-            v-model="filters.fromDate"
-            type="date"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-epl-blue focus:border-transparent"
-            @change="fetchFixtures"
-          />
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">To Date</label>
-          <input
-            v-model="filters.toDate"
-            type="date"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-epl-blue focus:border-transparent"
-            @change="fetchFixtures"
-          />
-        </div>
-        
-        <div class="flex items-end">
-          <button
-            @click="fetchFixtures"
-            class="w-full btn-primary"
-            :disabled="loading"
-          >
-            <span v-if="loading" class="flex items-center justify-center">
-              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              Loading...
-            </span>
-            <span v-else>Search</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="flex flex-wrap gap-4">
-      <button
-        @click="showLiveFixtures"
-        class="btn-primary"
-        :class="{ 'bg-epl-red': showingLive }"
-      >
-        <span v-if="showingLive" class="animate-pulse">🔴</span>
-        Live Fixtures
-      </button>
-      <button
-        @click="showTodayFixtures"
-        class="btn-secondary"
-      >
-        Today's Fixtures
-      </button>
-      <button
-        @click="showUpcomingFixtures"
-        class="btn-secondary"
-      >
-        Upcoming
-      </button>
-    </div>
-
-    <!-- Loading State -->
-    <div v-if="loading" class="text-center py-12">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-epl-blue mx-auto mb-4"></div>
-      <p class="text-gray-600">Loading fixtures...</p>
-    </div>
-
-    <!-- Error State -->
-    <div v-else-if="error" class="card text-center py-12">
-      <div class="text-6xl mb-4">⚠️</div>
-      <h3 class="text-xl font-semibold text-gray-900 mb-2">Error Loading Fixtures</h3>
-      <p class="text-gray-600 mb-4">{{ error }}</p>
-      <button @click="fetchFixtures" class="btn-primary">Try Again</button>
-    </div>
-
-    <!-- Fixtures List -->
-    <div v-else-if="fixtures.length > 0" class="space-y-4">
-      <div
-        v-for="fixture in fixtures"
-        :key="fixture.fixture.id"
-        class="card hover:shadow-lg transition-shadow duration-200 cursor-pointer"
-        @click="viewFixture(fixture.fixture.id)"
-      >
-        <div class="flex items-center justify-between">
-          <!-- League Info -->
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 bg-gradient-to-br from-epl-blue to-epl-purple rounded-lg flex items-center justify-center">
-              <span class="text-white text-xs font-bold">
-                {{ fixture.league?.name?.charAt(0) || 'L' }}
-              </span>
+  <div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+    <!-- Hero Header -->
+    <div class="relative overflow-hidden bg-gradient-to-br from-epl-blue/5 via-epl-purple/5 to-epl-gold/5 py-12">
+      <div class="absolute inset-0 bg-pattern opacity-30"></div>
+      <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+          <div class="flex items-center justify-center space-x-3 mb-6">
+            <div class="w-12 h-12 bg-gradient-to-br from-epl-blue to-epl-purple rounded-xl flex items-center justify-center shadow-lg">
+              <span class="text-white text-xl">📅</span>
             </div>
             <div>
-              <div class="text-sm font-medium text-gray-900">{{ fixture.league?.name }}</div>
-              <div class="text-xs text-gray-500">{{ fixture.league?.round }}</div>
+              <h1 class="text-4xl md:text-5xl font-bold text-gradient">Premier League</h1>
+              <h2 class="text-2xl md:text-3xl font-bold text-gray-700">Fixtures</h2>
             </div>
           </div>
-          
-          <!-- Match Status -->
-          <div class="text-center">
-            <div 
-              :class="[
-                'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                getStatusClass(fixture.fixture.status.short)
-              ]"
-            >
-              {{ getStatusText(fixture.fixture.status.short) }}
-            </div>
-            <div class="text-xs text-gray-500 mt-1">
-              {{ formatDate(fixture.fixture.date) }}
-            </div>
-          </div>
-          
-          <!-- Teams and Score -->
-          <div class="flex-1 mx-8">
-            <div class="flex items-center justify-between">
-              <!-- Home Team -->
-              <div class="flex items-center space-x-3 flex-1">
-                <div class="w-10 h-10 bg-gradient-to-br from-epl-blue to-epl-purple rounded-full flex items-center justify-center">
-                  <span class="text-white text-sm font-bold">
-                    {{ fixture?.teams?.home?.name?.charAt(0) || 'H' }}
-                  </span>
-                </div>
-                <span class="font-medium text-gray-900">{{ fixture?.teams?.home?.name || 'Home Team' }}</span>
-              </div>
-              
-              <!-- Score -->
-              <div class="text-center mx-4">
-                <div v-if="fixture.fixture.status.short === 'NS'" class="text-lg font-bold text-gray-400">
-                  vs
-                </div>
-                <div v-else class="text-2xl font-bold text-gray-900">
-                  {{ fixture.goals.home || 0 }} - {{ fixture.goals.away || 0 }}
-                </div>
-                <div v-if="fixture.fixture.status.short === 'LIVE'" class="text-xs text-red-600 font-medium animate-pulse">
-                  {{ fixture.fixture.status.elapsed }}'
-                </div>
-              </div>
-              
-              <!-- Away Team -->
-              <div class="flex items-center space-x-3 flex-1 justify-end">
-                <span class="font-medium text-gray-900">{{ fixture?.teams?.away?.name || 'Away Team' }}</span>
-                <div class="w-10 h-10 bg-gradient-to-br from-epl-gold to-epl-red rounded-full flex items-center justify-center">
-                  <span class="text-white text-sm font-bold">
-                    {{ fixture?.teams?.away?.name?.charAt(0) || 'A' }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Venue -->
-          <div class="text-right">
-            <div class="text-sm text-gray-600">{{ fixture.fixture.venue?.name || 'TBD' }}</div>
-            <div class="text-xs text-gray-500">{{ fixture.fixture.venue?.city || '' }}</div>
-          </div>
+          <p class="text-xl text-gray-600 max-w-3xl mx-auto">Match schedules, results, and live updates for the {{ filters.season }}/{{ parseInt(filters.season) + 1 }} season</p>
         </div>
-        
-        <!-- Additional Info -->
-        <div v-if="fixture.fixture.status.short !== 'NS'" class="mt-4 pt-4 border-t border-gray-100">
-          <div class="flex items-center justify-between text-sm text-gray-600">
-            <div class="flex items-center space-x-4">
-              <span>Referee: {{ fixture.fixture.referee || 'TBD' }}</span>
-              <span>Attendance: {{ fixture.fixture.attendance || 'TBD' }}</span>
-            </div>
-            <button class="text-epl-blue hover:text-epl-purple font-medium">
-              View Details →
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <!-- Search and Filters -->
+      <div class="card-enhanced mb-8">
+        <div class="flex items-center space-x-3 mb-6">
+          <div class="w-10 h-10 bg-gradient-to-br from-epl-blue to-epl-purple rounded-xl flex items-center justify-center">
+            <span class="text-white text-lg">🔍</span>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900">Search & Filters</h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div>
+            <label class="block text-lg font-semibold text-gray-700 mb-3">Season</label>
+            <select
+              v-model="filters.season"
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-epl-blue focus:border-transparent bg-white shadow-lg font-medium text-lg"
+              @change="fetchFixtures"
+            >
+              <option value="2025">2025/26</option>
+              <option value="2024">2024/25</option>
+              <option value="2023">2023/24</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-lg font-semibold text-gray-700 mb-3">League</label>
+            <select
+              v-model="filters.league"
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-epl-blue focus:border-transparent bg-white shadow-lg font-medium text-lg"
+              @change="fetchFixtures"
+            >
+              <option value="39">Premier League</option>
+              <option value="140">La Liga</option>
+              <option value="135">Serie A</option>
+              <option value="78">Bundesliga</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-lg font-semibold text-gray-700 mb-3">Status</label>
+            <select
+              v-model="filters.status"
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-epl-blue focus:border-transparent bg-white shadow-lg font-medium text-lg"
+              @change="fetchFixtures"
+            >
+              <option value="">All Status</option>
+              <option value="NS">Not Started</option>
+              <option value="1H">First Half</option>
+              <option value="HT">Half Time</option>
+              <option value="2H">Second Half</option>
+              <option value="FT">Full Time</option>
+              <option value="LIVE">Live</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-lg font-semibold text-gray-700 mb-3">From Date</label>
+            <input
+              v-model="filters.fromDate"
+              type="date"
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-epl-blue focus:border-transparent bg-white shadow-lg font-medium text-lg"
+              @change="fetchFixtures"
+            />
+          </div>
+          
+          <div>
+            <label class="block text-lg font-semibold text-gray-700 mb-3">To Date</label>
+            <input
+              v-model="filters.toDate"
+              type="date"
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-epl-blue focus:border-transparent bg-white shadow-lg font-medium text-lg"
+              @change="fetchFixtures"
+            />
+          </div>
+          
+          <div class="flex items-end">
+            <button
+              @click="fetchFixtures"
+              class="w-full btn-primary text-lg py-3"
+              :disabled="loading"
+            >
+              <span v-if="loading" class="flex items-center justify-center">
+                <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                Loading...
+              </span>
+              <span v-else>Search Fixtures</span>
             </button>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Empty State -->
-    <div v-else class="card text-center py-12">
-      <div class="text-6xl mb-4">⚽</div>
-      <h3 class="text-xl font-semibold text-gray-900 mb-2">No Fixtures Found</h3>
-      <p class="text-gray-600">Try adjusting your search criteria or filters.</p>
-    </div>
-
-    <!-- Pagination -->
-    <div v-if="fixtures.length > 0 && totalPages > 1" class="flex justify-center">
-      <nav class="flex items-center space-x-2">
+      <!-- Quick Actions -->
+      <div class="flex flex-wrap gap-4 mb-8">
         <button
-          @click="changePage(currentPage - 1)"
-          :disabled="currentPage === 1"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          @click="showLiveFixtures"
+          class="quick-action-btn"
+          :class="{ 'quick-action-btn-active': showingLive }"
         >
-          Previous
+          <span class="text-xl mr-2">⚽</span>
+          Live Matches
         </button>
-        
-        <div class="flex items-center space-x-1">
-          <button
-            v-for="page in visiblePages"
-            :key="page"
-            @click="changePage(page)"
-            :class="[
-              'px-3 py-2 text-sm font-medium rounded-lg',
-              page === currentPage
-                ? 'bg-epl-blue text-white'
-                : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-            ]"
-          >
-            {{ page }}
-          </button>
+        <button
+          @click="showTodayFixtures"
+          class="quick-action-btn"
+          :class="{ 'quick-action-btn-active': showingToday }"
+        >
+          <span class="text-xl mr-2">📅</span>
+          Today's Matches
+        </button>
+        <button
+          @click="showUpcomingFixtures"
+          class="quick-action-btn"
+          :class="{ 'quick-action-btn-active': showingUpcoming }"
+        >
+          <span class="text-xl mr-2">⏰</span>
+          Upcoming
+        </button>
+        <button
+          @click="showFinishedFixtures"
+          class="quick-action-btn"
+          :class="{ 'quick-action-btn-active': showingFinished }"
+        >
+          <span class="text-xl mr-2">🏁</span>
+          Finished
+        </button>
+      </div>
+
+      <!-- Loading State -->
+      <div v-if="loading" class="text-center py-16">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-epl-blue mx-auto mb-6"></div>
+        <h3 class="text-2xl font-bold text-gray-900 mb-2">Loading Fixtures</h3>
+        <p class="text-gray-600">Fetching match data...</p>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="error" class="card-enhanced text-center py-16">
+        <div class="text-8xl mb-6">⚠️</div>
+        <h3 class="text-2xl font-bold text-gray-900 mb-4">Error Loading Fixtures</h3>
+        <p class="text-gray-600 mb-8 text-lg">{{ error }}</p>
+        <button @click="fetchFixtures" class="btn-primary text-lg px-8 py-3">
+          Try Again
+        </button>
+      </div>
+
+      <!-- Fixtures List -->
+      <div v-else-if="fixtures.length > 0" class="space-y-6">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-2xl font-bold text-gray-900">Match Results</h3>
+          <div class="text-gray-600">Showing {{ fixtures.length }} matches</div>
         </div>
         
-        <button
-          @click="changePage(currentPage + 1)"
-          :disabled="currentPage === totalPages"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        <div 
+          v-for="fixture in fixtures" 
+          :key="`${fixture.fixture?.id || fixture.id}-${fixture.fixture?.status?.elapsed || fixture.elapsed || 0}-${fixture.fixture?.status?.extra || 0}`"
+          :class="[
+            'fixture-card',
+            isLiveFixture(fixture) 
+              ? 'fixture-card-live' 
+              : 'fixture-card-upcoming'
+          ]"
         >
-          Next
-        </button>
-      </nav>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-4">
+              <div :class="isLiveFixture(fixture) ? 'text-sm text-white/80' : 'text-sm text-gray-600'">
+                {{ fixture.league?.name }}
+              </div>
+              <div 
+                v-if="isLiveFixture(fixture)"
+                class="live-badge"
+              >
+                LIVE
+              </div>
+              <div 
+                v-else
+                class="status-badge"
+              >
+                {{ getFixtureStatus(fixture) }}
+              </div>
+            </div>
+            <div :class="isLiveFixture(fixture) ? 'text-sm text-white/80' : 'text-sm text-gray-600'">
+              {{ getFixtureTime(fixture) }}
+            </div>
+          </div>
+        
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+              <!-- Home Team -->
+              <div class="team-section">
+                <div class="team-logo">
+                  <img 
+                    v-if="fixture.teams?.home?.logo" 
+                    :src="fixture.teams.home.logo" 
+                    :alt="fixture.teams.home.name"
+                    class="w-full h-full object-cover"
+                    @error="$event.target.style.display='none'"
+                  />
+                  <span :class="isLiveFixture(fixture) ? 'text-epl-blue font-bold text-sm' : 'text-gray-700 font-bold text-sm'">
+                    {{ (fixture.teams?.home?.name || 'H')?.charAt(0) }}
+                  </span>
+                </div>
+                <span :class="isLiveFixture(fixture) ? 'team-name-live' : 'team-name'">
+                  {{ fixture.teams?.home?.name }}
+                </span>
+              </div>
+              
+              <!-- Score -->
+              <div class="score-section">
+                <div :class="isLiveFixture(fixture) ? 'score-live' : 'score'">
+                  {{ fixture.goals?.home || 0 }} - {{ fixture.goals?.away || 0 }}
+                </div>
+                <div :class="isLiveFixture(fixture) ? 'text-xs text-white/70' : 'text-xs text-gray-500'">
+                  {{ getFixtureTimeDisplay(fixture) }}
+                </div>
+              </div>
+              
+              <!-- Away Team -->
+              <div class="team-section">
+                <span :class="isLiveFixture(fixture) ? 'team-name-live' : 'team-name'">
+                  {{ fixture.teams?.away?.name }}
+                </span>
+                <div class="team-logo">
+                  <img 
+                    v-if="fixture.teams?.away?.logo" 
+                    :src="fixture.teams.away.logo" 
+                    :alt="fixture.teams.away.name"
+                    class="w-full h-full object-cover"
+                    @error="$event.target.style.display='none'"
+                  />
+                  <span :class="isLiveFixture(fixture) ? 'text-epl-blue font-bold text-sm' : 'text-gray-700 font-bold text-sm'">
+                    {{ (fixture.teams?.away?.name || 'A')?.charAt(0) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div v-else class="card-enhanced text-center py-16">
+        <div class="text-8xl mb-6 animate-bounce-gentle">⚽</div>
+        <h3 class="text-2xl font-bold text-gray-900 mb-4">No Fixtures Found</h3>
+        <p class="text-gray-600 text-lg">No matches found for the selected criteria.</p>
+      </div>
     </div>
   </div>
 </template>
@@ -287,6 +282,9 @@ export default {
     const currentPage = ref(1)
     const totalPages = ref(1)
     const showingLive = ref(false)
+    const showingToday = ref(false)
+    const showingUpcoming = ref(false)
+    const showingFinished = ref(false)
     
     const filters = ref({
       season: 2025,
@@ -325,28 +323,54 @@ export default {
     }
 
     const showLiveFixtures = async () => {
-      showingLive.value = !showingLive.value
-      if (showingLive.value) {
-        filters.value.status = 'LIVE'
-        await fetchFixtures()
-      } else {
-        filters.value.status = ''
-        await fetchFixtures()
-      }
+      // Reset all states
+      showingLive.value = true
+      showingToday.value = false
+      showingUpcoming.value = false
+      showingFinished.value = false
+      
+      filters.value.status = 'LIVE'
+      await fetchFixtures()
     }
 
     const showTodayFixtures = async () => {
+      // Reset all states
+      showingLive.value = false
+      showingToday.value = true
+      showingUpcoming.value = false
+      showingFinished.value = false
+      
       const today = new Date().toISOString().split('T')[0]
       filters.value.fromDate = today
       filters.value.toDate = today
+      filters.value.status = ''
       await fetchFixtures()
     }
 
     const showUpcomingFixtures = async () => {
+      // Reset all states
+      showingLive.value = false
+      showingToday.value = false
+      showingUpcoming.value = true
+      showingFinished.value = false
+      
       const today = new Date().toISOString().split('T')[0]
       filters.value.fromDate = today
       filters.value.toDate = ''
       filters.value.status = 'NS'
+      await fetchFixtures()
+    }
+
+    const showFinishedFixtures = async () => {
+      // Reset all states
+      showingLive.value = false
+      showingToday.value = false
+      showingUpcoming.value = false
+      showingFinished.value = true
+      
+      filters.value.status = 'FT'
+      filters.value.fromDate = ''
+      filters.value.toDate = ''
       await fetchFixtures()
     }
 
@@ -395,6 +419,64 @@ export default {
       })
     }
 
+    // Helper functions for fixture display
+    const isLiveFixture = (fixture) => {
+      const status = fixture.fixture?.status?.short || fixture.status?.short || fixture.status
+      return status === 'LIVE' || status === 'HT' || status === '1H' || status === '2H'
+    }
+
+    const getFixtureStatus = (fixture) => {
+      const status = fixture.fixture?.status?.short || fixture.status?.short || fixture.status
+      switch (status) {
+        case 'NS': return 'UPCOMING'
+        case 'FT': return 'FINISHED'
+        case 'HT': return 'HALF TIME'
+        case '1H': return '1ST HALF'
+        case '2H': return '2ND HALF'
+        default: return status || 'UNKNOWN'
+      }
+    }
+
+    const getFixtureTime = (fixture) => {
+      if (isLiveFixture(fixture)) {
+        return `${fixture.fixture?.status?.elapsed || fixture.elapsed || 0}'`
+      } else {
+        const date = fixture.fixture?.date || fixture.date
+        if (date) {
+          return new Date(date).toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: false 
+          })
+        }
+        return 'TBD'
+      }
+    }
+
+    const getFixtureTimeDisplay = (fixture) => {
+      if (isLiveFixture(fixture)) {
+        const elapsed = fixture.fixture?.status?.elapsed || fixture.elapsed || 0
+        const extra = fixture.fixture?.status?.extra || 0
+        let timeDisplay = elapsed.toString()
+        if (extra && extra > 0) {
+          timeDisplay += `+${extra}`
+        }
+        return timeDisplay + "'"
+      } else {
+        const date = fixture.fixture?.date || fixture.date
+        if (date) {
+          return new Date(date).toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric',
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: false 
+          })
+        }
+        return 'TBD'
+      }
+    }
+
     // Computed properties for pagination
     const visiblePages = computed(() => {
       const pages = []
@@ -421,15 +503,23 @@ export default {
       totalPages,
       visiblePages,
       showingLive,
+      showingToday,
+      showingUpcoming,
+      showingFinished,
       fetchFixtures,
       showLiveFixtures,
       showTodayFixtures,
       showUpcomingFixtures,
+      showFinishedFixtures,
       changePage,
       viewFixture,
       getStatusClass,
       getStatusText,
-      formatDate
+      formatDate,
+      isLiveFixture,
+      getFixtureStatus,
+      getFixtureTime,
+      getFixtureTimeDisplay
     }
   }
 }

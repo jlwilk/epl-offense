@@ -1,262 +1,368 @@
 <template>
-  <div class="space-y-8">
+  <div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
     <!-- Hero Section -->
-    <div class="text-center space-y-6">
-      <h1 class="text-4xl md:text-6xl font-bold text-gradient">
-        Premier League Statistics
-      </h1>
-      <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-        Comprehensive analysis of the English Premier League with real-time data, team performance metrics, and player statistics.
-      </p>
-      <div class="flex flex-wrap justify-center gap-4">
-        <router-link to="/standings" class="btn-primary text-lg px-8 py-3">
-          View Standings
-        </router-link>
-        <router-link to="/teams" class="btn-secondary text-lg px-8 py-3">
-          Explore Teams
-        </router-link>
+    <div class="relative overflow-hidden">
+      <!-- Background Pattern -->
+      <div class="absolute inset-0 bg-gradient-to-br from-epl-blue/5 via-epl-purple/5 to-epl-gold/5"></div>
+      <div class="absolute inset-0 bg-pattern opacity-50"></div>
+      
+      <div class="relative z-10 text-center space-y-8 py-16 px-4">
+        <!-- Animated Badge -->
+        <div class="inline-flex items-center space-x-2 bg-gradient-to-r from-epl-blue to-epl-purple text-white px-6 py-3 rounded-full shadow-lg animate-bounce-gentle">
+          <span class="text-2xl">⚽</span>
+          <span class="font-semibold">Premier League 2024/25</span>
+        </div>
+        
+        <h1 class="text-5xl md:text-7xl font-bold text-gradient leading-tight">
+          Premier League
+          <span class="block text-4xl md:text-5xl mt-2 text-gray-700">Statistics Hub</span>
+        </h1>
+        
+        <p class="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+          Comprehensive analysis of the English Premier League with real-time data, 
+          <span class="font-semibold text-epl-blue">team performance metrics</span>, and 
+          <span class="font-semibold text-epl-purple">player statistics</span>.
+        </p>
+        
+        <div class="flex flex-wrap justify-center gap-6 pt-4">
+          <router-link to="/standings" class="group relative overflow-hidden bg-gradient-to-r from-epl-blue to-epl-purple text-white font-bold text-lg px-8 py-4 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+            <span class="relative z-10">View Standings</span>
+            <div class="absolute inset-0 bg-gradient-to-r from-epl-purple to-epl-blue opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          </router-link>
+          <router-link to="/teams" class="group relative overflow-hidden bg-white text-epl-blue font-bold text-lg px-8 py-4 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border-2 border-epl-blue">
+            <span class="relative z-10">Explore Teams</span>
+            <div class="absolute inset-0 bg-epl-blue opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+          </router-link>
+        </div>
       </div>
     </div>
 
     <!-- Quick Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <div class="stat-card">
-        <div class="text-center">
-          <div class="text-3xl font-bold">{{ quickStats.teams || '20' }}</div>
-          <div class="text-blue-100">Teams</div>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="text-center">
-          <div class="text-3xl font-bold">{{ quickStats.season || '2025' }}</div>
-          <div class="text-blue-100">Season</div>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="text-center">
-          <div class="text-3xl font-bold">{{ quickStats.fixtures || '380' }}</div>
-          <div class="text-blue-100">Fixtures</div>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="text-center">
-          <div class="text-3xl font-bold">{{ quickStats.players || '500+' }}</div>
-          <div class="text-blue-100">Players</div>
+    <div class="px-4 py-12">
+      <div class="max-w-7xl mx-auto">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div class="group stat-card-enhanced transform hover:scale-105 transition-all duration-300">
+            <div class="text-center space-y-2">
+              <div class="text-4xl md:text-5xl font-bold text-white group-hover:text-epl-gold transition-colors duration-300">
+                {{ quickStats.teams || '20' }}
+              </div>
+              <div class="text-blue-100 font-medium">Premier League Teams</div>
+              <div class="w-8 h-1 bg-epl-gold mx-auto rounded-full opacity-60"></div>
+            </div>
+          </div>
+          <div class="group stat-card-enhanced transform hover:scale-105 transition-all duration-300">
+            <div class="text-center space-y-2">
+              <div class="text-4xl md:text-5xl font-bold text-white group-hover:text-epl-gold transition-colors duration-300">
+                {{ quickStats.season || '2025' }}
+              </div>
+              <div class="text-blue-100 font-medium">Current Season</div>
+              <div class="w-8 h-1 bg-epl-gold mx-auto rounded-full opacity-60"></div>
+            </div>
+          </div>
+          <div class="group stat-card-enhanced transform hover:scale-105 transition-all duration-300">
+            <div class="text-center space-y-2">
+              <div class="text-4xl md:text-5xl font-bold text-white group-hover:text-epl-gold transition-colors duration-300">
+                {{ quickStats.fixtures || '380' }}
+              </div>
+              <div class="text-blue-100 font-medium">Total Fixtures</div>
+              <div class="w-8 h-1 bg-epl-gold mx-auto rounded-full opacity-60"></div>
+            </div>
+          </div>
+          <div class="group stat-card-enhanced transform hover:scale-105 transition-all duration-300">
+            <div class="text-center space-y-2">
+              <div class="text-4xl md:text-5xl font-bold text-white group-hover:text-epl-gold transition-colors duration-300">
+                {{ quickStats.players || '500+' }}
+              </div>
+              <div class="text-blue-100 font-medium">Active Players</div>
+              <div class="w-8 h-1 bg-epl-gold mx-auto rounded-full opacity-60"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Fixtures Section -->
-    <div class="card">
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-bold text-gray-900">{{ fixturesSectionTitle }}</h2>
-        <router-link to="/fixtures" class="text-epl-blue hover:text-epl-purple font-medium">
-          View All →
-        </router-link>
-      </div>
-      
-      <div v-if="displayFixtures.length === 0" class="text-center py-8 text-gray-500">
-        <div class="text-6xl mb-4">⚽</div>
-        <p>{{ noFixturesMessage }}</p>
-        <p class="text-sm">{{ noFixturesSubMessage }}</p>
-      </div>
-      
-      <div v-else class="space-y-4">
-        <div 
-          v-for="fixture in displayFixtures.slice(0, 3)" 
-          :key="`${fixture.fixture?.id || fixture.id}-${fixture.fixture?.status?.elapsed || fixture.elapsed || 0}-${fixture.fixture?.status?.extra || 0}`"
-          :class="[
-            'rounded-lg p-4',
-            isLiveFixture(fixture) 
-              ? 'bg-gradient-to-r from-epl-blue to-epl-purple text-white' 
-              : 'bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200'
-          ]"
-        >
-                      <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-4">
-                <div :class="isLiveFixture(fixture) ? 'text-sm opacity-75' : 'text-sm text-gray-600'">
-                  {{ fixture.league?.name }}
-                </div>
-                <div 
-                  v-if="isLiveFixture(fixture)"
-                  class="text-xs bg-red-500 px-2 py-1 rounded-full animate-pulse"
-                >
-                  LIVE
-                </div>
-                <div 
-                  v-else
-                  class="text-xs bg-gray-500 px-2 py-1 rounded-full"
-                >
-                  {{ getFixtureStatus(fixture) }}
-                </div>
+    <div class="px-4 py-12">
+      <div class="max-w-7xl mx-auto">
+        <div class="card-enhanced">
+          <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center space-x-3">
+              <div class="w-12 h-12 bg-gradient-to-br from-epl-blue to-epl-purple rounded-xl flex items-center justify-center">
+                <span class="text-white text-xl">⚽</span>
               </div>
-              <div :class="isLiveFixture(fixture) ? 'text-sm opacity-75' : 'text-sm text-gray-600'">
-                {{ getFixtureTime(fixture) }}
+              <div>
+                <h2 class="text-3xl font-bold text-gray-900">{{ fixturesSectionTitle }}</h2>
+                <p class="text-gray-600">Latest match updates and schedules</p>
               </div>
             </div>
+            <router-link to="/fixtures" class="group flex items-center space-x-2 text-epl-blue hover:text-epl-purple font-semibold transition-colors duration-200">
+              <span>View All</span>
+              <span class="transform group-hover:translate-x-1 transition-transform duration-200">→</span>
+            </router-link>
+          </div>
           
-                      <div class="flex items-center justify-between mt-3">
-              <div class="flex items-center space-x-3">
-                <!-- Home Team Logo -->
-                <div class="w-8 h-8 rounded-full overflow-hidden bg-white flex items-center justify-center">
-                  <img 
-                    v-if="fixture.teams?.home?.logo" 
-                    :src="fixture.teams.home.logo" 
-                    :alt="fixture.teams.home.name"
-                    class="w-full h-full object-cover"
-                    @error="$event.target.style.display='none'"
-                  />
-                  <span :class="isLiveFixture(fixture) ? 'text-epl-blue font-bold text-xs' : 'text-gray-700 font-bold text-xs'">
-                    {{ (fixture.teams?.home?.name || 'H')?.charAt(0) }}
-                  </span>
+          <div v-if="displayFixtures.length === 0" class="text-center py-16">
+            <div class="text-8xl mb-6 animate-bounce-gentle">⚽</div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ noFixturesMessage }}</h3>
+            <p class="text-gray-600">{{ noFixturesSubMessage }}</p>
+          </div>
+          
+          <div v-else class="space-y-6">
+            <div 
+              v-for="fixture in displayFixtures.slice(0, 3)" 
+              :key="`${fixture.fixture?.id || fixture.id}-${fixture.fixture?.status?.elapsed || fixture.elapsed || 0}-${fixture.fixture?.status?.extra || 0}`"
+              :class="[
+                'fixture-card',
+                isLiveFixture(fixture) 
+                  ? 'fixture-card-live' 
+                  : 'fixture-card-upcoming'
+              ]"
+            >
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-4">
+                  <div :class="isLiveFixture(fixture) ? 'text-sm text-white/80' : 'text-sm text-gray-600'">
+                    {{ fixture.league?.name }}
+                  </div>
+                  <div 
+                    v-if="isLiveFixture(fixture)"
+                    class="live-badge"
+                  >
+                    LIVE
+                  </div>
+                  <div 
+                    v-else
+                    class="status-badge"
+                  >
+                    {{ getFixtureStatus(fixture) }}
+                  </div>
                 </div>
-                <span :class="isLiveFixture(fixture) ? 'font-semibold' : 'font-semibold text-gray-900'">
-                  {{ fixture.teams?.home?.name }}
-                </span>
+                <div :class="isLiveFixture(fixture) ? 'text-sm text-white/80' : 'text-sm text-gray-600'">
+                  {{ getFixtureTime(fixture) }}
+                </div>
               </div>
-              
-              <div class="text-center">
-                <div :class="isLiveFixture(fixture) ? 'text-2xl font-bold' : 'text-2xl font-bold text-gray-900'">
-                  {{ fixture.goals?.home || 0 }} - {{ fixture.goals?.away || 0 }}
-                </div>
-                <div :class="isLiveFixture(fixture) ? 'text-xs opacity-75' : 'text-xs text-gray-600'">
-                  {{ getFixtureTimeDisplay(fixture) }}
-                </div>
-              </div>
-              
-              <div class="flex items-center space-x-3">
-                <span :class="isLiveFixture(fixture) ? 'font-semibold' : 'font-semibold text-gray-900'">
-                  {{ fixture.teams?.away?.name }}
-                </span>
-                <!-- Away Team Logo -->
-                <div class="w-8 h-8 rounded-full overflow-hidden bg-white flex items-center justify-center">
-                  <img 
-                    v-if="fixture.teams?.away?.logo" 
-                    :src="fixture.teams.away.logo" 
-                    :alt="fixture.teams.away.name"
-                    class="w-full h-full object-cover"
-                    @error="$event.target.style.display='none'"
-                  />
-                  <span :class="isLiveFixture(fixture) ? 'text-epl-blue font-bold text-xs' : 'text-gray-700 font-bold text-xs'">
-                    {{ (fixture.teams?.away?.name || 'A')?.charAt(0) }}
-                  </span>
+            
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                  <!-- Home Team -->
+                  <div class="team-section">
+                    <div class="team-logo">
+                      <img 
+                        v-if="fixture.teams?.home?.logo" 
+                        :src="fixture.teams.home.logo" 
+                        :alt="fixture.teams.home.name"
+                        class="w-full h-full object-cover"
+                        @error="$event.target.style.display='none'"
+                      />
+                      <!-- <span :class="isLiveFixture(fixture) ? 'text-epl-blue font-bold text-lg' : 'text-gray-700 font-bold text-lg'">
+                        {{ (fixture.teams?.home?.name || 'H')?.charAt(0) }}
+                      </span> -->
+                    </div>
+                    <span :class="isLiveFixture(fixture) ? 'team-name-live' : 'team-name'">
+                      {{ fixture.teams?.home?.name }}
+                    </span>
+                  </div>
+                  
+                  <!-- Score -->
+                  <div class="score-section">
+                    <div :class="isLiveFixture(fixture) ? 'score-live' : 'score'">
+                      {{ fixture.goals?.home || 0 }} - {{ fixture.goals?.away || 0 }}
+                    </div>
+                    <div :class="isLiveFixture(fixture) ? 'text-xs text-white/70' : 'text-xs text-gray-500'">
+                      {{ getFixtureTimeDisplay(fixture) }}
+                    </div>
+                  </div>
+                  
+                  <!-- Away Team -->
+                  <div class="team-section">
+                    <span :class="isLiveFixture(fixture) ? 'team-name-live' : 'team-name'">
+                      {{ fixture.teams?.away?.name }}
+                    </span>
+                    <div class="team-logo">
+                      <img 
+                        v-if="fixture.teams?.away?.logo" 
+                        :src="fixture.teams.away.logo" 
+                        :alt="fixture.teams.away.name"
+                        class="w-full h-full object-cover"
+                        @error="$event.target.style.display='none'"
+                      />
+                      <!-- <span :class="isLiveFixture(fixture) ? 'text-epl-blue font-bold text-lg' : 'text-gray-700 font-bold text-lg'">
+                        {{ (fixture.teams?.away?.name || 'A')?.charAt(0) }}
+                      </span> -->
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Quick Access Sections -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- Teams Section -->
-      <div class="card hover:shadow-xl transition-shadow duration-300">
-        <div class="text-center space-y-4">
-          <div class="w-16 h-16 bg-gradient-to-br from-epl-blue to-epl-purple rounded-full flex items-center justify-center mx-auto">
-            <span class="text-white text-2xl">🏆</span>
+    <div class="px-4 py-12">
+      <div class="max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <!-- Teams Section -->
+          <div class="quick-access-card group">
+            <div class="text-center space-y-6">
+              <div class="quick-access-icon teams-icon">
+                <span class="text-white text-3xl">🏆</span>
+              </div>
+              <div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-3">Teams</h3>
+                <p class="text-gray-600 leading-relaxed">Explore all Premier League teams, their statistics, and performance metrics.</p>
+              </div>
+              <router-link to="/teams" class="quick-access-btn">
+                View Teams
+              </router-link>
+            </div>
           </div>
-          <h3 class="text-xl font-semibold text-gray-900">Teams</h3>
-          <p class="text-gray-600">Explore all Premier League teams, their statistics, and performance metrics.</p>
-          <router-link to="/teams" class="btn-primary w-full">
-            View Teams
-          </router-link>
-        </div>
-      </div>
 
-      <!-- Players Section -->
-      <div class="card hover:shadow-xl transition-shadow duration-300">
-        <div class="text-center space-y-4">
-          <div class="w-16 h-16 bg-gradient-to-br from-epl-gold to-epl-red rounded-full flex items-center justify-center mx-auto">
-            <span class="text-white text-2xl">⚽</span>
+          <!-- Players Section -->
+          <div class="quick-access-card group">
+            <div class="text-center space-y-6">
+              <div class="quick-access-icon players-icon">
+                <span class="text-white text-3xl">⚽</span>
+              </div>
+              <div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-3">Players</h3>
+                <p class="text-gray-600 leading-relaxed">Discover top performers, goal scorers, and defensive leaders in the league.</p>
+              </div>
+              <router-link to="/players" class="quick-access-btn">
+                View Players
+              </router-link>
+            </div>
           </div>
-          <h3 class="text-xl font-semibold text-gray-900">Players</h3>
-          <p class="text-gray-600">Discover top performers, goal scorers, and defensive leaders in the league.</p>
-          <router-link to="/players" class="btn-primary w-full">
-            View Players
-          </router-link>
-        </div>
-      </div>
 
-      <!-- Fixtures Section -->
-      <div class="card hover:shadow-xl transition-shadow duration-300">
-        <div class="text-center space-y-4">
-          <div class="w-16 h-16 bg-gradient-to-br from-epl-red to-epl-gold rounded-full flex items-center justify-center mx-auto">
-            <span class="text-white text-2xl">📅</span>
+          <!-- Fixtures Section -->
+          <div class="quick-access-card group">
+            <div class="text-center space-y-6">
+              <div class="quick-access-icon fixtures-icon">
+                <span class="text-white text-3xl">📅</span>
+              </div>
+              <div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-3">Fixtures</h3>
+                <p class="text-gray-600 leading-relaxed">View upcoming matches, live scores, and fixture schedules for the season.</p>
+              </div>
+              <router-link to="/fixtures" class="quick-access-btn">
+                View Fixtures
+              </router-link>
+            </div>
           </div>
-          <h3 class="text-xl font-semibold text-gray-900">Fixtures</h3>
-          <p class="text-gray-600">View upcoming matches, live scores, and fixture schedules for the season.</p>
-          <router-link to="/fixtures" class="btn-primary w-full">
-            View Fixtures
-          </router-link>
         </div>
       </div>
     </div>
 
     <!-- Top Performers Preview -->
-    <div class="card">
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-bold text-gray-900">Top Performers</h2>
-        <router-link to="/players" class="text-epl-blue hover:text-epl-purple font-medium">
-          View All →
-        </router-link>
-      </div>
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Top Scorers -->
-        <div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <span class="text-epl-gold mr-2">🥇</span>
-            Top Scorers
-          </h3>
-          <div v-if="loading.topScorers" class="text-center py-4">
-            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-epl-blue mx-auto"></div>
-          </div>
-          <div v-else-if="topScorers.length > 0" class="space-y-3">
-            <div 
-              v-for="(player, index) in topScorers.slice(0, 5)" 
-              :key="player.player?.id || player.id"
-              class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-            >
-              <div class="flex items-center space-x-3">
-                <span class="text-lg font-bold text-epl-gold">{{ index + 1 }}</span>
-                <div>
-                  <div class="font-medium">{{ player.player?.name || player.name }}</div>
-                  <div class="text-sm text-gray-500">{{ player.statistics?.[0]?.team?.name }}</div>
-                </div>
+    <div class="px-4 py-12">
+      <div class="max-w-7xl mx-auto">
+        <div class="card-enhanced">
+          <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center space-x-3">
+              <div class="w-12 h-12 bg-gradient-to-br from-epl-gold to-epl-red rounded-xl flex items-center justify-center">
+                <span class="text-white text-xl">🏅</span>
               </div>
-              <div class="text-right">
-                <div class="text-xl font-bold text-epl-red">{{ player.statistics?.[0]?.goals?.total || 0 }}</div>
-                <div class="text-xs text-gray-500">goals</div>
+              <div>
+                <h2 class="text-3xl font-bold text-gray-900">Top Performers</h2>
+                <p class="text-gray-600">League leaders and statistics</p>
               </div>
             </div>
+            <router-link to="/players" class="group flex items-center space-x-2 text-epl-blue hover:text-epl-purple font-semibold transition-colors duration-200">
+              <span>View All</span>
+              <span class="transform group-hover:translate-x-1 transition-transform duration-200">→</span>
+            </router-link>
           </div>
-        </div>
-
-        <!-- Top Assists -->
-        <div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <span class="text-epl-blue mr-2">🎯</span>
-            Top Assists
-          </h3>
-          <div v-if="loading.topAssists" class="text-center py-4">
-            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-epl-blue mx-auto"></div>
-          </div>
-          <div v-else-if="topAssists.length > 0" class="space-y-3">
-            <div 
-              v-for="(player, index) in topAssists.slice(0, 5)" 
-              :key="player.player?.id || player.id"
-              class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-            >
-              <div class="flex items-center space-x-3">
-                <span class="text-lg font-bold text-epl-blue">{{ index + 1 }}</span>
-                <div>
-                  <div class="font-medium">{{ player.player?.name || player.name }}</div>
-                  <div class="text-sm text-gray-500">{{ player.statistics?.[0]?.team?.name }}</div>
+          
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Top Scorers -->
+            <div class="performers-section">
+              <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                <span class="text-2xl mr-3">🥇</span>
+                Top Scorers
+              </h3>
+              <div v-if="loading.topScorers" class="text-center py-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-epl-blue mx-auto"></div>
+              </div>
+              <div v-else-if="topScorers.length > 0" class="space-y-4">
+                <div 
+                  v-for="(player, index) in topScorers.slice(0, 5)" 
+                  :key="player.player?.id || player.id"
+                  class="performer-card"
+                >
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                      <div class="rank-badge rank-gold">{{ index + 1 }}</div>
+                      <div class="player-photo">
+                        <img 
+                          v-if="player.player?.photo" 
+                          :src="player.player.photo" 
+                          :alt="player.player?.name || player.name"
+                          class="w-full h-full object-cover"
+                          @error="$event.target.style.display='none'"
+                        />
+                        <div v-else class="player-photo-fallback">
+                          <span class="text-white font-bold text-lg">
+                            {{ (player.player?.name || player.name || 'P')?.charAt(0) }}
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <div class="font-bold text-gray-900">{{ player.player?.name || player.name }}</div>
+                        <div class="text-sm text-gray-500">{{ player.statistics?.[0]?.team?.name }}</div>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <div class="text-2xl font-bold text-epl-red">{{ player.statistics?.[0]?.goals?.total || 0 }}</div>
+                      <div class="text-xs text-gray-500 uppercase tracking-wide">goals</div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="text-right">
-                <div class="text-xl font-bold text-epl-purple">{{ player.statistics?.[0]?.goals?.assists || 0 }}</div>
-                <div class="text-xs text-gray-500">assists</div>
+            </div>
+
+            <!-- Top Assists -->
+            <div class="performers-section">
+              <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                <span class="text-2xl mr-3">🎯</span>
+                Top Assists
+              </h3>
+              <div v-if="loading.topAssists" class="text-center py-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-epl-blue mx-auto"></div>
+              </div>
+              <div v-else-if="topAssists.length > 0" class="space-y-4">
+                <div 
+                  v-for="(player, index) in topAssists.slice(0, 5)" 
+                  :key="player.player?.id || player.id"
+                  class="performer-card"
+                >
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                      <div class="rank-badge rank-blue">{{ index + 1 }}</div>
+                      <div class="player-photo">
+                        <img 
+                          v-if="player.player?.photo" 
+                          :src="player.player.photo" 
+                          :alt="player.player?.name || player.name"
+                          class="w-full h-full object-cover"
+                          @error="$event.target.style.display='none'"
+                        />
+                        <div v-else class="player-photo-fallback">
+                          <span class="text-white font-bold text-lg">
+                            {{ (player.player?.name || player.name || 'P')?.charAt(0) }}
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <div class="font-bold text-gray-900">{{ player.player?.name || player.name }}</div>
+                        <div class="text-sm text-gray-500">{{ player.statistics?.[0]?.team?.name }}</div>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <div class="text-2xl font-bold text-epl-purple">{{ player.statistics?.[0]?.goals?.assists || 0 }}</div>
+                      <div class="text-xs text-gray-500 uppercase tracking-wide">assists</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
