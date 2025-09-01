@@ -31,29 +31,60 @@ api.interceptors.response.use(
   (response) => {
     const data = response.data
     
-            // Handle the specific API response structure
-        if (data && data.response !== undefined) {
-          console.log(`API Response for ${response.config.url}:`, data)
-          
-          // If it's a single item, return the first item from response array
-          if (data.results === 1 && Array.isArray(data.response) && data.response.length > 0) {
-            console.log('Single item response - unwrapping first item')
-            return data.response[0]
-          }
-          // If it's multiple items, return the full response object
-          console.log('Multiple items response - returning full object with nested structure')
-          return data
-        }
-        
-        // Handle the double nested structure for single team endpoints
-        if (data && data.team && data.team.team && data.venue && data.venue.venue) {
-          console.log('Double nested structure detected - unwrapping')
-          return {
-            ...data,
-            team: data.team.team,
-            venue: data.venue.venue
-          }
-        }
+    // Handle the specific API response structure
+    if (data && data.response !== undefined) {
+      console.log(`API Response for ${response.config.url}:`, data)
+      
+      // For team endpoints, return the full response object to preserve structure
+      if (response.config.url.includes('/teams/') && !response.config.url.includes('/statistics') && !response.config.url.includes('/fixtures') && !response.config.url.includes('/players')) {
+        console.log('Team endpoint - returning full response object')
+        return data
+      }
+      
+      // For statistics endpoints, return the response object directly
+      if (response.config.url.includes('/statistics')) {
+        console.log('Statistics endpoint - returning response object')
+        return data.response
+      }
+      
+      // For standings endpoints, return the response object directly
+      if (response.config.url.includes('/standings/')) {
+        console.log('Standings endpoint - returning response object')
+        return data.response
+      }
+      
+      // For fixtures endpoints, return the response array directly
+      if (response.config.url.includes('/fixtures')) {
+        console.log('Fixtures endpoint - returning response array')
+        return data.response
+      }
+      
+      // For players endpoints, return the response array directly
+      if (response.config.url.includes('/players')) {
+        console.log('Players endpoint - returning response array')
+        return data.response
+      }
+      
+      // If it's a single item, return the first item from response array
+      if (data.results === 1 && Array.isArray(data.response) && data.response.length > 0) {
+        console.log('Single item response - unwrapping first item')
+        return data.response[0]
+      }
+      
+      // If it's multiple items, return the full response object
+      console.log('Multiple items response - returning full object with nested structure')
+      return data
+    }
+    
+    // Handle the double nested structure for single team endpoints
+    if (data && data.team && data.team.team && data.venue && data.venue.venue) {
+      console.log('Double nested structure detected - unwrapping')
+      return {
+        ...data,
+        team: data.team.team,
+        venue: data.venue.venue
+      }
+    }
     
     return data
   },
