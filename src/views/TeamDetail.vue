@@ -45,7 +45,7 @@
             <h1 class="text-4xl font-bold text-gray-900 mb-2">{{ team?.name || 'Team Name' }}</h1>
             <div class="space-y-2 text-gray-600">
               <div class="flex flex-wrap justify-center md:justify-start gap-4">
-                <span><strong>Country:</strong> {{ team?.country || 'England' }}</span>
+                <span><strong>Country:</strong> {{ venue?.country || 'England' }}</span>
                 <span><strong>Founded:</strong> {{ team?.founded || 'N/A' }}</span>
                 <span><strong>Venue:</strong> {{ team?.venue_name || 'N/A' }}</span>
               </div>
@@ -76,8 +76,10 @@
         </div>
       </div>
 
+
+
       <!-- Quick Stats -->
-      <div v-if="!loading && teamStats && Object.keys(teamStats).length > 0" class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div v-if="!loading && teamStats && Object.keys(teamStats).length > 0 && teamStats.position !== 'N/A'" class="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div class="stat-card">
           <div class="text-center">
             <div class="text-3xl font-bold">{{ teamStats.position || 'N/A' }}</div>
@@ -92,13 +94,13 @@
         </div>
         <div class="stat-card">
           <div class="text-center">
-            <div class="text-3xl font-bold">{{ teamStats.goalsFor || '0' }}</div>
+            <div class="text-3xl font-bold">{{ typeof teamStats.goalsFor === 'object' ? teamStats.goalsFor.total : teamStats.goalsFor || '0' }}</div>
             <div class="text-blue-100">Goals For</div>
           </div>
         </div>
         <div class="stat-card">
           <div class="text-center">
-            <div class="text-3xl font-bold">{{ teamStats.goalsAgainst || '0' }}</div>
+            <div class="text-3xl font-bold">{{ typeof teamStats.goalsAgainst === 'object' ? teamStats.goalsAgainst.total : teamStats.goalsAgainst || '0' }}</div>
             <div class="text-blue-100">Goals Against</div>
           </div>
         </div>
@@ -201,11 +203,11 @@
           <div class="space-y-4">
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <div class="text-2xl font-bold text-epl-blue">{{ teamStats.cleanSheets || 0 }}</div>
+                <div class="text-2xl font-bold text-epl-blue">{{ typeof teamStats.cleanSheets === 'object' ? teamStats.cleanSheets.total : teamStats.cleanSheets || 0 }}</div>
                 <div class="text-sm text-gray-500">Clean Sheets</div>
               </div>
               <div>
-                <div class="text-2xl font-bold text-epl-purple">{{ teamStats.failedToScore || 0 }}</div>
+                <div class="text-2xl font-bold text-epl-purple">{{ typeof teamStats.failedToScore === 'object' ? teamStats.failedToScore.total : teamStats.failedToScore || 0 }}</div>
                 <div class="text-sm text-gray-500">Failed to Score</div>
               </div>
             </div>
@@ -214,11 +216,11 @@
               <div class="text-sm font-medium text-gray-700 mb-2">Cards:</div>
               <div class="grid grid-cols-2 gap-4 text-center">
                 <div>
-                  <div class="text-lg font-bold text-epl-gold">{{ teamStats.yellowCards || 0 }}</div>
+                  <div class="text-lg font-bold text-epl-gold">{{ getTotalCards(teamStats.yellowCards) }}</div>
                   <div class="text-xs text-gray-500">Yellow</div>
                 </div>
                 <div>
-                  <div class="text-lg font-bold text-epl-red">{{ teamStats.redCards || 0 }}</div>
+                  <div class="text-lg font-bold text-epl-red">{{ getTotalCards(teamStats.redCards) }}</div>
                   <div class="text-xs text-gray-500">Red</div>
                 </div>
               </div>
@@ -320,13 +322,25 @@
             @click="viewPlayer(player.id)"
           >
             <div class="flex items-center space-x-3">
-              <div class="w-12 h-12 bg-gradient-to-br from-epl-gold to-epl-red rounded-full flex items-center justify-center">
-                <span class="text-white text-lg font-bold">
-                  {{ player?.name?.charAt(0) || 'P' }}
-                </span>
+              <div class="w-12 h-12 rounded-full overflow-hidden">
+                <img 
+                  v-if="player?.player?.photo" 
+                  :src="player.player.photo" 
+                  :alt="player?.player?.name || 'Player'"
+                  class="w-full h-full object-cover"
+                  @error="$event.target.style.display='none'"
+                />
+                <div 
+                  v-else
+                  class="w-full h-full bg-gradient-to-br from-epl-gold to-epl-red flex items-center justify-center"
+                >
+                  <span class="text-white text-lg font-bold">
+                    {{ player?.player?.name?.charAt(0) || 'P' }}
+                  </span>
+                </div>
               </div>
               <div class="flex-1">
-                <div class="font-medium text-gray-900">{{ player?.name || 'Player Name' }}</div>
+                <div class="font-medium text-gray-900">{{ player?.player?.name || 'Player Name' }}</div>
                 <div class="text-sm text-gray-500">{{ player?.statistics?.[0]?.games?.position || 'N/A' }}</div>
               </div>
               <div class="text-right">
@@ -408,17 +422,30 @@ export default {
     }
 
     const teamStats = computed(() => {
-      if (!team.value?.statistics?.[0]) {
-        return {}
+      // First try to get stats from the team's statistics array
+      let stats = null
+      
+      if (team.value?.statistics && Array.isArray(team.value.statistics) && team.value.statistics.length > 0) {
+        // Look for the specific league statistics (Premier League - league ID 39)
+        stats = team.value.statistics.find(s => s.league?.id === 39) || team.value.statistics[0]
+        console.log('🔍 TeamStats Debug - Found stats:', {
+          stats,
+          hasLeague: !!stats?.league,
+          leagueId: stats?.league?.id,
+          leagueName: stats?.league?.name,
+          hasGoals: !!stats?.goals,
+          hasFixtures: !!stats?.fixtures,
+          hasCards: !!stats?.cards
+        })
       }
       
-      const stats = team.value.statistics[0]
       if (!stats || typeof stats !== 'object') {
+        // Fallback: try to get stats from the teamStatsData if it was stored separately
+        console.log('🔍 TeamStats Debug - No valid stats found')
         return {}
       }
       
-      // Use standings data for position and points, fallback to statistics
-      return {
+      const result = {
         position: getTeamPosition() !== 'N/A' ? getTeamPosition() : (stats.league?.standings?.[0]?.rank || 'N/A'),
         points: getTeamPoints() !== 'N/A' ? getTeamPoints() : (stats.league?.standings?.[0]?.points || 0),
         goalsFor: stats.goals?.for?.total || 0,
@@ -431,6 +458,9 @@ export default {
         yellowCards: stats.cards?.yellow || 0,
         redCards: stats.cards?.red || 0
       }
+      
+      console.log('🔍 TeamStats Debug - Computed result:', result)
+      return result
     })
 
     const fetchTeamData = async () => {
@@ -504,6 +534,9 @@ export default {
           if (teamStatsData && typeof teamStatsData === 'object') {
             if (teamStatsData.response && Array.isArray(teamStatsData.response)) {
               team.value.statistics = teamStatsData.response
+            } else if (teamStatsData.response && typeof teamStatsData.response === 'object') {
+              // Handle case where response is an object, not an array
+              team.value.statistics = [teamStatsData.response]
             } else {
               team.value.statistics = [teamStatsData]
             }
@@ -511,19 +544,45 @@ export default {
             team.value.statistics = []
           }
           
-          console.log('🔍 TeamDetail Debug - Final team value:', {
-            team: team.value,
-            hasTeam: !!team.value,
-            teamKeys: team.value ? Object.keys(team.value) : [],
-            hasStatistics: !!team.value?.statistics,
-            statisticsLength: team.value?.statistics?.length,
-            venueData: {
-              name: team.value?.venue_name,
-              city: team.value?.venue_city,
-              capacity: team.value?.venue_capacity
-            }
-          })
-        } else {
+                  console.log('🔍 TeamDetail Debug - Final team value:', {
+          team: team.value,
+          hasTeam: !!team.value,
+          teamKeys: team.value ? Object.keys(team.value) : [],
+          hasStatistics: !!team.value?.statistics,
+          statisticsLength: team.value?.statistics?.length,
+          statisticsStructure: team.value?.statistics ? team.value.statistics.map(s => ({
+            hasLeague: !!s.league,
+            leagueId: s.league?.id,
+            leagueName: s.league?.name,
+            hasGoals: !!s.goals,
+            hasFixtures: !!s.fixtures,
+            hasCards: !!s.cards
+          })) : [],
+          venueData: {
+            name: team.value?.venue_name,
+            city: team.value?.venue_city,
+            capacity: team.value?.venue_capacity
+          }
+        })
+        
+        console.log('🔍 TeamDetail Debug - Processed data:', {
+          fixtures: {
+            original: fixturesData,
+            processed: recentFixtures.value,
+            length: recentFixtures.value.length
+          },
+          players: {
+            original: playersData,
+            processed: teamPlayers.value,
+            length: teamPlayers.value.length
+          },
+          form: {
+            original: formData,
+            processed: teamForm.value,
+            length: teamForm.value.length
+          }
+        })
+      } else {
           console.warn('Invalid team data structure:', teamData)
           team.value = null
           error.value = 'Invalid team data received from server.'
@@ -531,9 +590,47 @@ export default {
         }
         
         // Validate other data
-        recentFixtures.value = Array.isArray(fixturesData) ? fixturesData : []
-        teamPlayers.value = Array.isArray(playersData) ? playersData : []
-        teamForm.value = Array.isArray(formData) ? formData : []
+        if (fixturesData && typeof fixturesData === 'object') {
+          if (fixturesData.response && Array.isArray(fixturesData.response)) {
+            recentFixtures.value = fixturesData.response
+          } else if (fixturesData.response && typeof fixturesData.response === 'object') {
+            recentFixtures.value = [fixturesData.response]
+          } else if (Array.isArray(fixturesData)) {
+            recentFixtures.value = fixturesData
+          } else {
+            recentFixtures.value = []
+          }
+        } else {
+          recentFixtures.value = []
+        }
+        
+        if (playersData && typeof playersData === 'object') {
+          if (playersData.response && Array.isArray(playersData.response)) {
+            teamPlayers.value = playersData.response
+          } else if (playersData.response && typeof playersData.response === 'object') {
+            teamPlayers.value = [playersData.response]
+          } else if (Array.isArray(playersData)) {
+            teamPlayers.value = playersData
+          } else {
+            teamPlayers.value = []
+          }
+        } else {
+          teamPlayers.value = []
+        }
+        
+        if (formData && typeof formData === 'object') {
+          if (formData.response && Array.isArray(formData.response)) {
+            teamForm.value = formData.response
+          } else if (formData.response && typeof formData.response === 'object') {
+            teamForm.value = [formData.response]
+          } else if (Array.isArray(formData)) {
+            teamForm.value = formData
+          } else {
+            teamForm.value = []
+          }
+        } else {
+          teamForm.value = []
+        }
         
       } catch (err) {
         console.error('Error fetching team data:', err)
@@ -610,6 +707,19 @@ export default {
       }
     }
 
+    const getTotalCards = (cardsData) => {
+      if (!cardsData || typeof cardsData !== 'object') return 0
+      
+      // Sum up all the total values from the time-based breakdown
+      let total = 0
+      for (const timeSlot in cardsData) {
+        if (cardsData[timeSlot]?.total && typeof cardsData[timeSlot].total === 'number') {
+          total += cardsData[timeSlot].total
+        }
+      }
+      return total
+    }
+
     onMounted(() => {
       fetchTeamData()
     })
@@ -635,7 +745,8 @@ export default {
       getFormResultTitle,
       getStatusClass,
       getStatusText,
-      formatDate
+      formatDate,
+      getTotalCards
     }
   }
 }
