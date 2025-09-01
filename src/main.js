@@ -11,7 +11,7 @@ import Players from './views/Players.vue'
 import PlayerDetail from './views/PlayerDetail.vue'
 import Fixtures from './views/Fixtures.vue'
 import Standings from './views/Standings.vue'
-import Defense from './views/Defense.vue'
+
 import ApiTest from './views/ApiTest.vue'
 
 // Create router
@@ -25,7 +25,7 @@ const router = createRouter({
     { path: '/players/:id', name: 'PlayerDetail', component: PlayerDetail, props: true },
     { path: '/fixtures', name: 'Fixtures', component: Fixtures },
     { path: '/standings', name: 'Standings', component: Standings },
-    { path: '/defense', name: 'Defense', component: Defense },
+
   { path: '/api-test', name: 'ApiTest', component: ApiTest },
   ]
 })

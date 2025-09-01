@@ -218,18 +218,18 @@ export default {
       error.value = null
 
       try {
-                const data = await standingsAPI.getStandings({ season: selectedSeason.value })
+        const data = await standingsAPI.getStandings({ season: selectedSeason.value })
         
-        if (data && data.league) {
-          // API returns standings directly as {league: {...}}
+        if (data && Array.isArray(data) && data.length > 0) {
+          // API returns array with league object
+          const table = data[0]?.league?.standings?.[0] || []
+          standings.value = table
+          leagueInfo.value = data[0]?.league || null
+        } else if (data && data.league) {
+          // Fallback for direct league object
           const table = data.league?.standings?.[0] || []
           standings.value = table
           leagueInfo.value = data.league || null
-        } else if (data && data.response) {
-          // Fallback for response structure
-          const table = data.response?.[0]?.league?.standings?.[0] || []
-          standings.value = table
-          leagueInfo.value = data.response?.[0]?.league || null
         } else {
           standings.value = []
           leagueInfo.value = null
