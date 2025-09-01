@@ -16,8 +16,6 @@
 
     <!-- Team Details -->
     <div v-else-if="team" class="space-y-6">
-
-      
       <!-- Team Header -->
       <div class="card">
         <div class="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
@@ -47,15 +45,7 @@
               <div class="flex flex-wrap justify-center md:justify-start gap-4">
                 <span><strong>Country:</strong> {{ team?.country || 'England' }}</span>
                 <span><strong>Founded:</strong> {{ team?.founded || 'N/A' }}</span>
-                <span><strong>Venue:</strong> {{ team?.venue_name || 'N/A' }}</span>
-              </div>
-              <div class="flex flex-wrap justify-center md:justify-start gap-4">
-                <span><strong>City:</strong> {{ team?.venue_city || 'N/A' }}</span>
-                <span><strong>Capacity:</strong> {{ team?.venue_capacity?.toLocaleString() || 'N/A' }}</span>
-                <span><strong>Surface:</strong> {{ team?.venue_surface || 'N/A' }}</span>
-              </div>
-              <div v-if="team?.venue_address" class="flex flex-wrap justify-center md:justify-start gap-4">
-                <span><strong>Address:</strong> {{ team.venue_address }}</span>
+                <span><strong>Venue:</strong> {{ venue?.name || 'N/A' }}</span>
               </div>
             </div>
           </div>
@@ -77,7 +67,7 @@
       </div>
 
       <!-- Quick Stats -->
-      <div v-if="!loading && teamStats && Object.keys(teamStats).length > 0" class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div v-if="!loading && teamStats && Object.keys(teamStats).length > 0 && teamStats.position !== 'N/A'" class="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div class="stat-card">
           <div class="text-center">
             <div class="text-3xl font-bold">{{ teamStats.position || 'N/A' }}</div>
@@ -92,29 +82,29 @@
         </div>
         <div class="stat-card">
           <div class="text-center">
-            <div class="text-3xl font-bold">{{ teamStats.goalsFor || '0' }}</div>
+            <div class="text-3xl font-bold">{{ typeof teamStats.goalsFor === 'object' ? teamStats.goalsFor.total : teamStats.goalsFor || '0' }}</div>
             <div class="text-blue-100">Goals For</div>
           </div>
         </div>
         <div class="stat-card">
           <div class="text-center">
-            <div class="text-3xl font-bold">{{ teamStats.goalsAgainst || '0' }}</div>
+            <div class="text-3xl font-bold">{{ typeof teamStats.goalsAgainst === 'object' ? teamStats.goalsAgainst.total : teamStats.goalsAgainst || '0' }}</div>
             <div class="text-blue-100">Goals Against</div>
           </div>
         </div>
       </div>
       
       <!-- Venue Information -->
-      <div v-if="team?.venue_name" class="card">
+      <div v-if="venue?.name" class="card">
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-lg font-semibold text-gray-900">Stadium Information</h3>
         </div>
         <div class="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
           <!-- Venue Image -->
-          <div v-if="team.venue_image" class="w-48 h-32 rounded-lg overflow-hidden">
+          <div v-if="venue.image" class="w-48 h-32 rounded-lg overflow-hidden">
             <img 
-              :src="team.venue_image" 
-              :alt="team.venue_name"
+              :src="venue.image" 
+              :alt="venue.name"
               class="w-full h-full object-cover"
               @error="$event.target.style.display='none'"
             />
@@ -122,15 +112,15 @@
           
           <!-- Venue Details -->
           <div class="flex-1 text-center md:text-left">
-            <h4 class="text-xl font-semibold text-gray-900 mb-2">{{ team.venue_name }}</h4>
+            <h4 class="text-xl font-semibold text-gray-900 mb-2">{{ venue.name }}</h4>
             <div class="space-y-2 text-gray-600">
               <div class="flex flex-wrap justify-center md:justify-start gap-4">
-                <span><strong>City:</strong> {{ team.venue_city }}</span>
-                <span><strong>Capacity:</strong> {{ team.venue_capacity?.toLocaleString() }}</span>
-                <span><strong>Surface:</strong> {{ team.venue_surface }}</span>
+                <span><strong>City:</strong> {{ venue.city }}</span>
+                <span><strong>Capacity:</strong> {{ venue.capacity?.toLocaleString() }}</span>
+                <span><strong>Surface:</strong> {{ venue.surface }}</span>
               </div>
-              <div v-if="team.venue_address" class="text-sm">
-                <strong>Address:</strong> {{ team.venue_address }}
+              <div v-if="venue.address" class="text-sm">
+                <strong>Address:</strong> {{ venue.address }}
               </div>
             </div>
           </div>
@@ -199,13 +189,17 @@
         <div class="card">
           <h3 class="text-lg font-semibold text-gray-900 mb-4">Goals & Discipline</h3>
           <div class="space-y-4">
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-3 gap-4">
               <div>
-                <div class="text-2xl font-bold text-epl-blue">{{ teamStats.cleanSheets || 0 }}</div>
+                <div class="text-2xl font-bold text-epl-green">{{ typeof teamStats.goalsFor === 'object' ? teamStats.goalsFor.total : teamStats.goalsFor || 0 }}</div>
+                <div class="text-sm text-gray-500">Goals Scored</div>
+              </div>
+              <div>
+                <div class="text-2xl font-bold text-epl-blue">{{ typeof teamStats.cleanSheets === 'object' ? teamStats.cleanSheets.total : teamStats.cleanSheets || 0 }}</div>
                 <div class="text-sm text-gray-500">Clean Sheets</div>
               </div>
               <div>
-                <div class="text-2xl font-bold text-epl-purple">{{ teamStats.failedToScore || 0 }}</div>
+                <div class="text-2xl font-bold text-epl-purple">{{ typeof teamStats.failedToScore === 'object' ? teamStats.failedToScore.total : teamStats.failedToScore || 0 }}</div>
                 <div class="text-sm text-gray-500">Failed to Score</div>
               </div>
             </div>
@@ -214,11 +208,11 @@
               <div class="text-sm font-medium text-gray-700 mb-2">Cards:</div>
               <div class="grid grid-cols-2 gap-4 text-center">
                 <div>
-                  <div class="text-lg font-bold text-epl-gold">{{ teamStats.yellowCards || 0 }}</div>
+                  <div class="text-lg font-bold text-epl-gold">{{ getTotalCards(teamStats.yellowCards) }}</div>
                   <div class="text-xs text-gray-500">Yellow</div>
                 </div>
                 <div>
-                  <div class="text-lg font-bold text-epl-red">{{ teamStats.redCards || 0 }}</div>
+                  <div class="text-lg font-bold text-epl-red">{{ getTotalCards(teamStats.redCards) }}</div>
                   <div class="text-xs text-gray-500">Red</div>
                 </div>
               </div>
@@ -259,10 +253,28 @@
           >
             <div class="flex items-center space-x-4">
               <div class="text-sm text-gray-500 w-16">{{ formatDate(fixture?.fixture?.date) }}</div>
-              <div class="flex items-center space-x-2">
-                <span class="font-medium">{{ fixture?.teams?.home?.name || 'Home Team' }}</span>
-                <span class="text-gray-400">vs</span>
-                <span class="font-medium">{{ fixture?.teams?.away?.name || 'Away Team' }}</span>
+              <div class="flex flex-col space-y-1">
+                <div class="text-xs text-gray-400">{{ fixture?.league?.name || 'League' }}</div>
+                <div class="flex items-center space-x-2">
+                  <span 
+                    :class="[
+                      'font-medium',
+                      getWinnerClass(fixture, 'home')
+                    ]"
+                  >
+                    {{ fixture?.teams?.home?.name || 'Home Team' }}
+                  </span>
+                  <span class="text-gray-400">vs</span>
+                  <span 
+                    :class="[
+                      'font-medium',
+                      getWinnerClass(fixture, 'away')
+                    ]"
+                  >
+                    {{ fixture?.teams?.away?.name || 'Away Team' }}
+                  </span>
+                </div>
+                <div class="text-xs text-gray-500">{{ fixture?.fixture?.venue?.name || 'Venue TBD' }}</div>
               </div>
             </div>
             
@@ -276,7 +288,9 @@
                 {{ getStatusText(fixture?.fixture?.status?.short) }}
               </div>
               <div v-if="fixture?.fixture?.status?.short !== 'NS'" class="text-lg font-bold">
-                {{ fixture?.goals?.home || 0 }} - {{ fixture?.goals?.away || 0 }}
+                <span :class="getWinnerClass(fixture, 'home')">{{ fixture?.goals?.home || 0 }}</span>
+                <span class="text-gray-400"> - </span>
+                <span :class="getWinnerClass(fixture, 'away')">{{ fixture?.goals?.away || 0 }}</span>
               </div>
             </div>
           </div>
@@ -296,8 +310,8 @@
           </router-link>
         </div>
         
-        <div v-if="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div v-for="i in 6" :key="i" class="bg-gray-50 rounded-lg p-4">
+        <div v-if="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div v-for="i in 12" :key="i" class="bg-gray-50 rounded-lg p-4">
             <div class="flex items-center space-x-3">
               <div class="animate-pulse bg-gray-200 w-12 h-12 rounded-full"></div>
               <div class="flex-1">
@@ -312,25 +326,37 @@
           </div>
         </div>
         
-        <div v-else-if="teamPlayers.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div v-else-if="teamPlayers.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           <div
-            v-for="player in teamPlayers.slice(0, 6)"
+            v-for="player in teamPlayers"
             :key="player.id"
             class="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors duration-200 cursor-pointer"
             @click="viewPlayer(player.id)"
           >
             <div class="flex items-center space-x-3">
-              <div class="w-12 h-12 bg-gradient-to-br from-epl-gold to-epl-red rounded-full flex items-center justify-center">
-                <span class="text-white text-lg font-bold">
-                  {{ player?.name?.charAt(0) || 'P' }}
-                </span>
+              <div class="w-12 h-12 rounded-full overflow-hidden">
+                <img 
+                  v-if="player?.player?.photo" 
+                  :src="player.player.photo" 
+                  :alt="player?.player?.name || 'Player'"
+                  class="w-full h-full object-cover"
+                  @error="$event.target.style.display='none'"
+                />
+                <div 
+                  v-else
+                  class="w-full h-full bg-gradient-to-br from-epl-gold to-epl-red flex items-center justify-center"
+                >
+                  <span class="text-white text-lg font-bold">
+                    {{ player?.player?.name?.charAt(0) || 'P' }}
+                  </span>
+                </div>
               </div>
               <div class="flex-1">
-                <div class="font-medium text-gray-900">{{ player?.name || 'Player Name' }}</div>
-                <div class="text-sm text-gray-500">{{ player?.statistics?.[0]?.games?.position || 'N/A' }}</div>
+                <div class="font-medium text-gray-900">{{ player?.player?.name || 'Player Name' }}</div>
+                <div class="text-sm text-gray-500">{{ getPlayerPosition(player) }}</div>
               </div>
               <div class="text-right">
-                <div class="text-lg font-bold text-epl-red">{{ player?.statistics?.[0]?.goals?.total || 0 }}</div>
+                <div class="text-lg font-bold text-epl-red">{{ getPlayerGoals(player) }}</div>
                 <div class="text-xs text-gray-500">goals</div>
               </div>
             </div>
@@ -363,7 +389,9 @@ export default {
     const router = useRouter()
     const teamId = computed(() => props.id || route.params.id)
     
+    // Reactive data
     const team = ref(null)
+    const venue = ref(null)
     const recentFixtures = ref([])
     const teamPlayers = ref([])
     const teamForm = ref([])
@@ -372,6 +400,35 @@ export default {
     const error = ref(null)
     const selectedSeason = ref(2025)
 
+    // Computed properties
+    const teamStats = computed(() => {
+      let stats = null
+      
+      if (team.value?.statistics && Array.isArray(team.value.statistics) && team.value.statistics.length > 0) {
+        // Look for Premier League statistics (league ID 39)
+        stats = team.value.statistics.find(s => s.league?.id === 39) || team.value.statistics[0]
+      }
+      
+      if (!stats || typeof stats !== 'object') {
+        return {}
+      }
+      
+      return {
+        position: getTeamPosition() !== 'N/A' ? getTeamPosition() : (stats.league?.standings?.[0]?.rank || 'N/A'),
+        points: getTeamPoints() !== 'N/A' ? getTeamPoints() : (stats.league?.standings?.[0]?.points || 0),
+        goalsFor: stats.goals?.for?.total || 0,
+        goalsAgainst: stats.goals?.against?.total || 0,
+        wins: stats.fixtures?.wins?.total || 0,
+        draws: stats.fixtures?.draws?.total || 0,
+        losses: stats.fixtures?.loses?.total || 0,
+        cleanSheets: stats.clean_sheet?.total || 0,
+        failedToScore: stats.failed_to_score || 0,
+        yellowCards: stats.cards?.yellow || 0,
+        redCards: stats.cards?.red || 0
+      }
+    })
+
+    // API functions
     const fetchStandings = async () => {
       try {
         const data = await standingsAPI.getStandings({ 
@@ -379,9 +436,8 @@ export default {
           league: 39 // Premier League
         })
         
-        if (data && data.league && data.league.standings) {
-          // Extract the standings array from the nested structure
-          standings.value = data.league.standings[0] || []
+        if (data && data[0] && data[0].standings) {
+          standings.value = data[0].standings[0] || []
         } else {
           standings.value = []
         }
@@ -391,58 +447,11 @@ export default {
       }
     }
 
-    const getTeamPosition = () => {
-      if (!standings.value.length || !team.value) return 'N/A'
-      
-      const teamId = team.value.id
-      const standing = standings.value.find(s => s.team?.id === teamId)
-      return standing ? standing.rank : 'N/A'
-    }
-
-    const getTeamPoints = () => {
-      if (!standings.value.length || !team.value) return 'N/A'
-      
-      const teamId = team.value.id
-      const standing = standings.value.find(s => s.team?.id === teamId)
-      return standing ? standing.points : 'N/A'
-    }
-
-    const teamStats = computed(() => {
-      if (!team.value?.statistics?.[0]) {
-        return {}
-      }
-      
-      const stats = team.value.statistics[0]
-      if (!stats || typeof stats !== 'object') {
-        return {}
-      }
-      
-      // Use standings data for position and points, fallback to statistics
-      return {
-        position: getTeamPosition() !== 'N/A' ? getTeamPosition() : (stats.league?.standings?.[0]?.rank || 'N/A'),
-        points: getTeamPoints() !== 'N/A' ? getTeamPoints() : (stats.league?.standings?.[0]?.points || 0),
-        goalsFor: stats.goals?.for?.total || 0,
-        goalsAgainst: stats.goals?.against?.total || 0,
-        wins: stats.fixtures?.wins?.total || 0,
-        draws: stats.fixtures?.draws?.total || 0,
-        losses: stats.fixtures?.loses?.total || 0,
-        cleanSheets: stats.clean_sheets || 0,
-        failedToScore: stats.failed_to_score || 0,
-        yellowCards: stats.cards?.yellow || 0,
-        redCards: stats.cards?.red || 0
-      }
-    })
-
     const fetchTeamData = async () => {
       loading.value = true
       error.value = null
       
       try {
-        console.log('🔍 TeamDetail Debug - Fetching team data:', {
-          teamId: teamId.value,
-          selectedSeason: selectedSeason.value
-        })
-        
         const [teamData, teamStatsData, fixturesData, playersData, formData] = await Promise.all([
           teamsAPI.getTeam(teamId.value),
           teamsAPI.getTeamStats(teamId.value, { season: selectedSeason.value }),
@@ -451,89 +460,52 @@ export default {
           fixturesAPI.getTeamForm(teamId.value, { season: selectedSeason.value, last: 10 })
         ])
         
-        // Fetch standings data separately
         await fetchStandings()
         
-        console.log('🔍 TeamDetail Debug - API responses:', {
-          teamData: JSON.stringify(teamData, null, 2),
-          teamStatsData: JSON.stringify(teamStatsData, null, 2),
-          fixturesData: JSON.stringify(fixturesData, null, 2),
-          playersData: JSON.stringify(playersData, null, 2),
-          formData: JSON.stringify(formData, null, 2)
-        })
-        
-        console.log('🔍 TeamDetail Debug - Processing team data:', {
-          teamDataStructure: {
-            hasData: !!teamData,
-            hasResponse: !!teamData?.response,
-            dataType: typeof teamData,
-            keys: teamData ? Object.keys(teamData) : []
-          },
-          teamStatsStructure: {
-            hasData: !!teamStatsData,
-            hasResponse: !!teamStatsData?.response,
-            dataType: typeof teamStatsData,
-            keys: teamStatsData ? Object.keys(teamStatsData) : []
-          }
-        })
-        
-        // Validate team data structure
+        // Process team data
         if (teamData && typeof teamData === 'object') {
-          // Handle different API response structures
           if (teamData.response && Array.isArray(teamData.response) && teamData.response[0]) {
-            // Response array structure - extract team and venue data
             const responseItem = teamData.response[0]
-            team.value = {
-              ...responseItem.team, // Spread team properties (id, name, code, country, founded, logo)
-              venue_name: responseItem.venue?.name,
-              venue_address: responseItem.venue?.address,
-              venue_city: responseItem.venue?.city,
-              venue_capacity: responseItem.venue?.capacity,
-              venue_surface: responseItem.venue?.surface,
-              venue_image: responseItem.venue?.image
-            }
+            team.value = { ...responseItem.team }
+            venue.value = { ...responseItem.venue }
           } else if (teamData.team) {
-            // Nested team structure
             team.value = teamData.team
+            venue.value = teamData.venue
           } else {
-            // Direct team object
             team.value = teamData
+            venue.value = teamData.venue
           }
           
-          // Set team statistics separately if available
+          // Set team statistics
           if (teamStatsData && typeof teamStatsData === 'object') {
-            if (teamStatsData.response && Array.isArray(teamStatsData.response)) {
-              team.value.statistics = teamStatsData.response
-            } else {
-              team.value.statistics = [teamStatsData]
-            }
+            team.value.statistics = [teamStatsData]
           } else {
             team.value.statistics = []
           }
-          
-          console.log('🔍 TeamDetail Debug - Final team value:', {
-            team: team.value,
-            hasTeam: !!team.value,
-            teamKeys: team.value ? Object.keys(team.value) : [],
-            hasStatistics: !!team.value?.statistics,
-            statisticsLength: team.value?.statistics?.length,
-            venueData: {
-              name: team.value?.venue_name,
-              city: team.value?.venue_city,
-              capacity: team.value?.venue_capacity
-            }
-          })
         } else {
-          console.warn('Invalid team data structure:', teamData)
           team.value = null
           error.value = 'Invalid team data received from server.'
           return
         }
         
-        // Validate other data
+        // Process other data
         recentFixtures.value = Array.isArray(fixturesData) ? fixturesData : []
         teamPlayers.value = Array.isArray(playersData) ? playersData : []
-        teamForm.value = Array.isArray(formData) ? formData : []
+        
+        // Process form data
+        if (team.value?.statistics?.[0]?.form) {
+          teamForm.value = team.value.statistics[0].form.split('').slice(-5)
+        } else if (formData && formData.form_summary) {
+          const form = []
+          for (let i = 0; i < formData.form_summary.total; i++) {
+            if (i < formData.form_summary.wins) form.push('W')
+            else if (i < formData.form_summary.wins + formData.form_summary.draws) form.push('D')
+            else form.push('L')
+          }
+          teamForm.value = form.slice(-5)
+        } else {
+          teamForm.value = []
+        }
         
       } catch (err) {
         console.error('Error fetching team data:', err)
@@ -547,6 +519,7 @@ export default {
       }
     }
 
+    // Navigation functions
     const viewFixture = (fixtureId) => {
       router.push(`/fixtures/${fixtureId}`)
     }
@@ -555,7 +528,20 @@ export default {
       router.push(`/players/${playerId}`)
     }
 
-    // Helper functions
+    // Helper functions - Standings
+    const getTeamPosition = () => {
+      if (!standings.value.length || !team.value) return 'N/A'
+      const standing = standings.value.find(s => s.team?.id === team.value.id)
+      return standing ? standing.rank : 'N/A'
+    }
+
+    const getTeamPoints = () => {
+      if (!standings.value.length || !team.value) return 'N/A'
+      const standing = standings.value.find(s => s.team?.id === team.value.id)
+      return standing ? standing.points : 'N/A'
+    }
+
+    // Helper functions - Form and Status
     const getFormResultClass = (result) => {
       switch (result) {
         case 'W': return 'bg-epl-green'
@@ -596,6 +582,24 @@ export default {
       }
     }
 
+    // Helper functions - Fixtures
+    const getWinnerClass = (fixture, team) => {
+      if (fixture?.fixture?.status?.short === 'NS' || fixture?.fixture?.status?.short === 'LIVE') {
+        return 'text-gray-900'
+      }
+      
+      const homeGoals = fixture?.goals?.home || 0
+      const awayGoals = fixture?.goals?.away || 0
+      
+      if (homeGoals === awayGoals) {
+        return 'text-gray-900'
+      } else if (homeGoals > awayGoals) {
+        return team === 'home' ? 'text-epl-green font-bold' : 'text-gray-600'
+      } else {
+        return team === 'away' ? 'text-epl-green font-bold' : 'text-gray-600'
+      }
+    }
+
     const formatDate = (dateString) => {
       if (!dateString) return 'N/A'
       try {
@@ -610,13 +614,52 @@ export default {
       }
     }
 
+    // Helper functions - Players
+    const getPlayerStats = (player) => {
+      if (!player?.statistics || !Array.isArray(player.statistics)) {
+        return null
+      }
+      
+      // Look for Premier League statistics (league ID 39)
+      const premierLeagueStats = player.statistics.find(stat => stat.league?.id === 39)
+      
+      // If no Premier League stats found, return the first available stats
+      return premierLeagueStats || player.statistics[0]
+    }
+
+    const getPlayerPosition = (player) => {
+      const stats = getPlayerStats(player)
+      return stats?.games?.position || 'N/A'
+    }
+
+    const getPlayerGoals = (player) => {
+      const stats = getPlayerStats(player)
+      return stats?.goals?.total || 0
+    }
+
+    // Helper functions - Statistics
+    const getTotalCards = (cardsData) => {
+      if (!cardsData || typeof cardsData !== 'object') return 0
+      
+      let total = 0
+      for (const timeSlot in cardsData) {
+        if (cardsData[timeSlot]?.total && typeof cardsData[timeSlot].total === 'number') {
+          total += cardsData[timeSlot].total
+        }
+      }
+      return total
+    }
+
+    // Lifecycle
     onMounted(() => {
       fetchTeamData()
     })
 
     return {
+      // Reactive data
       teamId,
       team,
+      venue,
       recentFixtures,
       teamPlayers,
       teamForm,
@@ -624,18 +667,29 @@ export default {
       loading,
       error,
       selectedSeason,
+      
+      // Computed properties
       teamStats,
+      
+      // Functions
       fetchTeamData,
       fetchStandings,
-      getTeamPosition,
-      getTeamPoints,
       viewFixture,
       viewPlayer,
+      
+      // Helper functions
+      getTeamPosition,
+      getTeamPoints,
       getFormResultClass,
       getFormResultTitle,
       getStatusClass,
       getStatusText,
-      formatDate
+      getWinnerClass,
+      formatDate,
+      getPlayerStats,
+      getPlayerPosition,
+      getPlayerGoals,
+      getTotalCards
     }
   }
 }
