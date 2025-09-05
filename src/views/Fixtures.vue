@@ -77,7 +77,7 @@
           <div>
             <label class="block text-lg font-semibold text-gray-700 mb-3">From Date</label>
             <input
-              v-model="filters.fromDate"
+              v-model="filters.from_date"
               type="date"
               class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-epl-blue focus:border-transparent bg-white shadow-lg font-medium text-lg"
               @change="fetchFixtures"
@@ -87,7 +87,7 @@
           <div>
             <label class="block text-lg font-semibold text-gray-700 mb-3">To Date</label>
             <input
-              v-model="filters.toDate"
+              v-model="filters.to_date"
               type="date"
               class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-epl-blue focus:border-transparent bg-white shadow-lg font-medium text-lg"
               @change="fetchFixtures"
@@ -173,12 +173,12 @@
         <div 
           v-for="fixture in fixtures" 
           :key="`${fixture.fixture?.id || fixture.id}-${fixture.fixture?.status?.elapsed || fixture.elapsed || 0}-${fixture.fixture?.status?.extra || 0}`"
-          :class="[
-            'fixture-card',
-            isLiveFixture(fixture) 
-              ? 'fixture-card-live' 
-              : 'fixture-card-upcoming'
-          ]"
+                      :class="[
+              'fixture-card',
+              isLiveFixture(fixture) 
+                ? 'fixture-card-live' 
+                : 'fixture-card-upcoming'
+            ]"
         >
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center space-x-4">
@@ -203,54 +203,46 @@
             </div>
           </div>
         
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-              <!-- Home Team -->
-              <div class="team-section">
-                <div class="team-logo">
-                  <img 
-                    v-if="fixture.teams?.home?.logo" 
-                    :src="fixture.teams.home.logo" 
-                    :alt="fixture.teams.home.name"
-                    class="w-full h-full object-cover"
-                    @error="$event.target.style.display='none'"
-                  />
-                  <span :class="isLiveFixture(fixture) ? 'text-epl-blue font-bold text-sm' : 'text-gray-700 font-bold text-sm'">
-                    {{ (fixture.teams?.home?.name || 'H')?.charAt(0) }}
-                  </span>
-                </div>
-                <span :class="isLiveFixture(fixture) ? 'team-name-live' : 'team-name'">
+          <div class="flex items-center justify-center space-x-8">
+            <!-- Home Team -->
+            <div class="team-section">
+              <div class="team-logo">
+                <img 
+                  v-if="fixture.teams?.home?.logo" 
+                  :src="fixture.teams.home.logo" 
+                  :alt="fixture.teams.home.name"
+                  class="w-full h-full object-cover"
+                  @error="$event.target.style.display='none'"
+                />
+              </div>
+                              <span :class="isLiveFixture(fixture) ? 'team-name-live' : 'team-name'">
                   {{ fixture.teams?.home?.name }}
                 </span>
+            </div>
+            
+            <!-- Score -->
+            <div class="score-section">
+              <div :class="isLiveFixture(fixture) ? 'score-live' : 'score'">
+                {{ fixture.goals?.home || 0 }} - {{ fixture.goals?.away || 0 }}
               </div>
-              
-              <!-- Score -->
-              <div class="score-section">
-                <div :class="isLiveFixture(fixture) ? 'score-live' : 'score'">
-                  {{ fixture.goals?.home || 0 }} - {{ fixture.goals?.away || 0 }}
-                </div>
-                <div :class="isLiveFixture(fixture) ? 'text-xs text-white/70' : 'text-xs text-gray-500'">
-                  {{ getFixtureTimeDisplay(fixture) }}
-                </div>
+              <div :class="isLiveFixture(fixture) ? 'text-xs text-white/70' : 'text-xs text-gray-500'">
+                {{ getFixtureTimeDisplay(fixture) }}
               </div>
-              
-              <!-- Away Team -->
-              <div class="team-section">
-                <span :class="isLiveFixture(fixture) ? 'team-name-live' : 'team-name'">
+            </div>
+            
+            <!-- Away Team -->
+            <div class="team-section">
+                              <span :class="isLiveFixture(fixture) ? 'team-name-live' : 'team-name'">
                   {{ fixture.teams?.away?.name }}
                 </span>
-                <div class="team-logo">
-                  <img 
-                    v-if="fixture.teams?.away?.logo" 
-                    :src="fixture.teams.away.logo" 
-                    :alt="fixture.teams.away.name"
-                    class="w-full h-full object-cover"
-                    @error="$event.target.style.display='none'"
-                  />
-                  <span :class="isLiveFixture(fixture) ? 'text-epl-blue font-bold text-sm' : 'text-gray-700 font-bold text-sm'">
-                    {{ (fixture.teams?.away?.name || 'A')?.charAt(0) }}
-                  </span>
-                </div>
+              <div class="team-logo">
+                <img 
+                  v-if="fixture.teams?.away?.logo" 
+                  :src="fixture.teams.away.logo" 
+                  :alt="fixture.teams.away.name"
+                  class="w-full h-full object-cover"
+                  @error="$event.target.style.display='none'"
+                />
               </div>
             </div>
           </div>
@@ -290,8 +282,8 @@ export default {
       season: 2025,
       league: 39,
       status: '',
-      fromDate: '',
-      toDate: ''
+      from_date: '',
+      to_date: ''
     })
 
     const fetchFixtures = async () => {
@@ -341,8 +333,8 @@ export default {
       showingFinished.value = false
       
       const today = new Date().toISOString().split('T')[0]
-      filters.value.fromDate = today
-      filters.value.toDate = today
+      filters.value.from_date = today
+      filters.value.to_date = today
       filters.value.status = ''
       await fetchFixtures()
     }
@@ -355,8 +347,13 @@ export default {
       showingFinished.value = false
       
       const today = new Date().toISOString().split('T')[0]
-      filters.value.fromDate = today
-      filters.value.toDate = ''
+      // Set end date to 14 days from today for upcoming matches
+      const endDate = new Date()
+      endDate.setDate(endDate.getDate() + 14)
+      const endDateStr = endDate.toISOString().split('T')[0]
+      
+      filters.value.from_date = today
+      filters.value.to_date = endDateStr
       filters.value.status = 'NS'
       await fetchFixtures()
     }
@@ -369,8 +366,8 @@ export default {
       showingFinished.value = true
       
       filters.value.status = 'FT'
-      filters.value.fromDate = ''
-      filters.value.toDate = ''
+      filters.value.from_date = ''
+      filters.value.to_date = ''
       await fetchFixtures()
     }
 

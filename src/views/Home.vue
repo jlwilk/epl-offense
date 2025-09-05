@@ -375,7 +375,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { fixturesAPI, playerStatsAPI } from '../services/api'
 
@@ -400,6 +400,12 @@ export default {
       topScorers: false,
       topAssists: false
     })
+
+    // Smart polling system
+    const livePollingInterval = ref(null)
+    const upcomingPollingInterval = ref(null)
+    const elapsedTimeInterval = ref(null)
+    const isLivePollingActive = ref(false)
 
     const fetchLiveFixtures = async () => {
       try {
@@ -457,11 +463,75 @@ export default {
             upcomingFixtures.value = []
           }
         }
+        
+        // Check if any upcoming fixtures should be live now
+        checkForLiveFixtures()
       } catch (error) {
         console.error('Error fetching upcoming fixtures:', error)
         if (upcomingFixtures.value.length > 0) {
           upcomingFixtures.value = []
         }
+      }
+    }
+
+    // Smart function to check if we should start polling for live fixtures
+    const checkForLiveFixtures = () => {
+      const now = new Date()
+      const hasUpcomingFixtures = upcomingFixtures.value.length > 0
+      
+      if (!hasUpcomingFixtures) {
+        // No upcoming fixtures, no need to poll for live
+        stopLivePolling()
+        return
+      }
+      
+      // Check if any upcoming fixtures are within 30 minutes of start time
+      const shouldStartPolling = upcomingFixtures.value.some(fixture => {
+        const fixtureDate = new Date(fixture.fixture?.date || fixture.date)
+        const timeDiff = fixtureDate.getTime() - now.getTime()
+        const minutesDiff = timeDiff / (1000 * 60)
+        
+        // Start polling 30 minutes before match time
+        return minutesDiff <= 30 && minutesDiff > -90 // Within 30 min before or 90 min after
+      })
+      
+      if (shouldStartPolling && !isLivePollingActive.value) {
+        startLivePolling()
+      } else if (!shouldStartPolling && isLivePollingActive.value) {
+        stopLivePolling()
+      }
+    }
+
+    // Start live fixtures polling
+    const startLivePolling = () => {
+      if (isLivePollingActive.value) return
+      
+      console.log('Starting live fixtures polling')
+      isLivePollingActive.value = true
+      
+      // Fetch live fixtures immediately
+      fetchLiveFixtures()
+      
+      // Then poll every 30 seconds
+      livePollingInterval.value = setInterval(fetchLiveFixtures, 30000)
+    }
+
+    // Stop live fixtures polling
+    const stopLivePolling = () => {
+      if (!isLivePollingActive.value) return
+      
+      console.log('Stopping live fixtures polling')
+      isLivePollingActive.value = false
+      
+      if (livePollingInterval.value) {
+        clearInterval(livePollingInterval.value)
+        livePollingInterval.value = null
+      }
+      
+      // Clear live fixtures if no longer polling
+      if (liveFixtures.value.length > 0) {
+        liveFixtures.value = []
+        updateDisplayFixtures()
       }
     }
 
@@ -632,7 +702,7 @@ export default {
     }
 
     onMounted(() => {
-      fetchLiveFixtures()
+      // Start with upcoming fixtures first
       fetchUpcomingFixtures()
       fetchTopScorers()
       fetchTopAssists()
@@ -640,17 +710,27 @@ export default {
       // Update display fixtures after initial fetch
       setTimeout(updateDisplayFixtures, 1000)
       
-      // Refresh live fixtures every 30 seconds (silent update)
-      setInterval(fetchLiveFixtures, 30000)
-      
       // Refresh upcoming fixtures every 5 minutes
-      setInterval(fetchUpcomingFixtures, 300000)
+      upcomingPollingInterval.value = setInterval(fetchUpcomingFixtures, 300000)
       
       // Update display fixtures and elapsed time every minute
-      setInterval(() => {
+      elapsedTimeInterval.value = setInterval(() => {
         updateDisplayFixtures()
         updateElapsedTime()
       }, 60000)
+    })
+
+    // Cleanup intervals on component unmount
+    onUnmounted(() => {
+      if (livePollingInterval.value) {
+        clearInterval(livePollingInterval.value)
+      }
+      if (upcomingPollingInterval.value) {
+        clearInterval(upcomingPollingInterval.value)
+      }
+      if (elapsedTimeInterval.value) {
+        clearInterval(elapsedTimeInterval.value)
+      }
     })
 
     return {
