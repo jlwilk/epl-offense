@@ -45,8 +45,8 @@
               <div class="flex flex-wrap justify-center md:justify-start gap-4">
                 <span><strong>Age:</strong> {{ player?.age || player?.player?.age || 'N/A' }}</span>
                 <span><strong>Nationality:</strong> {{ player?.nationality || player?.player?.nationality || 'N/A' }}</span>
-                <span><strong>Height:</strong> {{ player?.height || player?.player?.height || 'N/A' }}</span>
-                <span><strong>Weight:</strong> {{ player?.weight || player?.player?.weight || 'N/A' }}</span>
+                <span><strong>Height:</strong> {{ formatHeight(player?.height || player?.player?.height) }}</span>
+                <span><strong>Weight:</strong> {{ formatWeight(player?.weight || player?.player?.weight) }}</span>
               </div>
               <div class="flex flex-wrap justify-center md:justify-start gap-4 items-center">
                 <span><strong>Team:</strong> {{ player?.statistics?.[0]?.team?.name || 'N/A' }}</span>
@@ -129,16 +129,16 @@
               <div class="text-sm font-medium text-gray-700 mb-2">Goal Details:</div>
               <div class="grid grid-cols-3 gap-4 text-center">
                 <div>
-                  <div class="text-lg font-bold text-epl-green">{{ playerStats.goalsHome || 0 }}</div>
-                  <div class="text-xs text-gray-500">Home</div>
+                  <div class="text-lg font-bold text-epl-green">{{ playerStats.assists || 0 }}</div>
+                  <div class="text-xs text-gray-500">Assists</div>
                 </div>
                 <div>
-                  <div class="text-lg font-bold text-epl-purple">{{ playerStats.goalsAway || 0 }}</div>
-                  <div class="text-xs text-gray-500">Away</div>
-                </div>
-                <div>
-                  <div class="text-lg font-bold text-epl-gold">{{ playerStats.penalties || 0 }}</div>
+                  <div class="text-lg font-bold text-epl-purple">{{ playerStats.penalties || 0 }}</div>
                   <div class="text-xs text-gray-500">Penalties</div>
+                </div>
+                <div>
+                  <div class="text-lg font-bold text-epl-gold">{{ playerStats.shotsOnTarget || 0 }}</div>
+                  <div class="text-xs text-gray-500">On Target</div>
                 </div>
               </div>
             </div>
@@ -162,7 +162,7 @@
             
             <div class="border-t pt-4">
               <div class="text-sm font-medium text-gray-700 mb-2">Game Details:</div>
-              <div class="grid grid-cols-3 gap-4 text-center">
+              <div class="grid grid-cols-4 gap-4 text-center">
                 <div>
                   <div class="text-lg font-bold text-epl-green">{{ playerStats.starts || 0 }}</div>
                   <div class="text-xs text-gray-500">Starts</div>
@@ -172,8 +172,12 @@
                   <div class="text-xs text-gray-500">Subs</div>
                 </div>
                 <div>
-                  <div class="text-lg font-bold text-epl-red">{{ playerStats.yellowCards || 0 }}</div>
+                  <div class="text-lg font-bold text-yellow-600">{{ playerStats.yellowCards || 0 }}</div>
                   <div class="text-xs text-gray-500">Yellow</div>
+                </div>
+                <div>
+                  <div class="text-lg font-bold text-red-600">{{ playerStats.redCards || 0 }}</div>
+                  <div class="text-xs text-gray-500">Red</div>
                 </div>
               </div>
             </div>
@@ -329,12 +333,11 @@ export default {
         goals: stats.goals?.total || 0,
         assists: stats.goals?.assists || 0,
         rating: stats.games?.rating || 0,
-        goalsHome: stats.goals?.home || 0,
-        goalsAway: stats.goals?.away || 0,
-        penalties: stats.penalties?.scored || 0,
+        penalties: stats.penalty?.scored || 0,
+        shotsOnTarget: stats.shots?.on || 0,
         minutes: stats.games?.minutes || 0,
         starts: stats.games?.lineups || 0,
-        subs: stats.games?.substitutes || 0,
+        subs: stats.substitutes?.in || 0,
         yellowCards: stats.cards?.yellow || 0,
         redCards: stats.cards?.red || 0,
         totalPasses: stats.passes?.total || 0,
@@ -471,6 +474,68 @@ export default {
       return 'bg-epl-red text-white'
     }
 
+    // Convert height from cm to feet and inches
+    const formatHeight = (height) => {
+      if (!height || height === 'N/A') return 'N/A'
+      
+      // Handle different height formats
+      let heightCm = height
+      
+      // If it's already a number, assume it's in cm
+      if (typeof height === 'number') {
+        heightCm = height
+      } else if (typeof height === 'string') {
+        // Remove any non-numeric characters except decimal points
+        const cleanHeight = height.replace(/[^\d.]/g, '')
+        heightCm = parseFloat(cleanHeight)
+        
+        // If the original string contains 'ft' or 'feet', it's already in feet
+        if (height.toLowerCase().includes('ft') || height.toLowerCase().includes('feet')) {
+          const feet = parseFloat(cleanHeight)
+          const inches = parseFloat(height.replace(/.*ft\s*(\d+).*/i, '$1') || 0)
+          return `${feet}'${inches}"`
+        }
+      }
+      
+      if (isNaN(heightCm) || heightCm <= 0) return 'N/A'
+      
+      // Convert cm to feet and inches
+      const totalInches = heightCm / 2.54
+      const feet = Math.floor(totalInches / 12)
+      const inches = Math.round(totalInches % 12)
+      
+      return `${feet}'${inches}"`
+    }
+
+    // Convert weight from kg to pounds
+    const formatWeight = (weight) => {
+      if (!weight || weight === 'N/A') return 'N/A'
+      
+      // Handle different weight formats
+      let weightKg = weight
+      
+      // If it's already a number, assume it's in kg
+      if (typeof weight === 'number') {
+        weightKg = weight
+      } else if (typeof weight === 'string') {
+        // Remove any non-numeric characters except decimal points
+        const cleanWeight = weight.replace(/[^\d.]/g, '')
+        weightKg = parseFloat(cleanWeight)
+        
+        // If the original string contains 'lb' or 'pounds', it's already in pounds
+        if (weight.toLowerCase().includes('lb') || weight.toLowerCase().includes('pounds')) {
+          return `${Math.round(parseFloat(cleanWeight))} lbs`
+        }
+      }
+      
+      if (isNaN(weightKg) || weightKg <= 0) return 'N/A'
+      
+      // Convert kg to pounds
+      const pounds = Math.round(weightKg * 2.20462)
+      
+      return `${pounds} lbs`
+    }
+
     onMounted(() => {
       fetchPlayerData()
     })
@@ -485,7 +550,9 @@ export default {
       availableSeasons,
       playerStats,
       fetchPlayerData,
-      getRatingClass
+      getRatingClass,
+      formatHeight,
+      formatWeight
     }
   }
 }

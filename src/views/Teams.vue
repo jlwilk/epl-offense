@@ -1,168 +1,154 @@
 <template>
-  <div class="space-y-6">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <h1 class="text-3xl font-bold text-gray-900">Premier League Teams</h1>
-        <p class="text-gray-600 mt-2">Explore all teams and their performance statistics</p>
-      </div>
-    </div>
-
-    <!-- Filters -->
-    <div class="card">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Season</label>
-          <select
-            v-model="filters.season"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-epl-blue focus:border-transparent"
-            @change="fetchTeams"
-          >
-            <option value="2025">2025</option>
-            <option value="2024">2024</option>
-            <option value="2023">2023</option>
-          </select>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
-          <select
-            v-model="filters.sortBy"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-epl-blue focus:border-transparent"
-          >
-            <option value="rank">League Position</option>
-            <option value="name">Team Name (A-Z)</option>
-            <option value="name-desc">Team Name (Z-A)</option>
-            <option value="points">Points (High to Low)</option>
-            <option value="points-asc">Points (Low to High)</option>
-          </select>
+  <div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+    <!-- Hero Header -->
+    <div class="relative overflow-hidden bg-gradient-to-br from-epl-blue/5 via-epl-purple/5 to-epl-gold/5 py-12">
+      <div class="absolute inset-0 bg-pattern opacity-30"></div>
+      <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+          <div class="flex items-center justify-center space-x-3 mb-6">
+            <div class="w-12 h-12 bg-gradient-to-br from-epl-blue to-epl-purple rounded-xl flex items-center justify-center shadow-lg">
+              <span class="text-white text-xl">🏆</span>
+            </div>
+            <div>
+              <h1 class="text-4xl md:text-5xl font-bold text-gradient">Premier League</h1>
+              <h2 class="text-2xl md:text-3xl font-bold text-gray-700">Teams</h2>
+            </div>
+          </div>
+          <p class="text-xl text-gray-600 max-w-3xl mx-auto">Explore all Premier League teams and their performance statistics for the {{ filters.season }}/{{ parseInt(filters.season) + 1 }} season</p>
         </div>
       </div>
     </div>
 
-    <!-- Loading State -->
-    <div v-if="loading" class="text-center py-12">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-epl-blue mx-auto mb-4"></div>
-      <p class="text-gray-600">Loading teams...</p>
-    </div>
-
-    <!-- Error State -->
-    <div v-else-if="error" class="card text-center py-12">
-      <div class="text-6xl mb-4">⚠️</div>
-      <h3 class="text-xl font-semibold text-gray-900 mb-2">Error Loading Teams</h3>
-      <p class="text-gray-600 mb-4">{{ error }}</p>
-      <button @click="fetchTeams" class="btn-primary">Try Again</button>
-    </div>
-
-    <!-- Teams Grid -->
-    <div v-else-if="sortedTeams.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      <div
-        v-for="team in sortedTeams"
-        :key="team.team?.id || team.id"
-        class="card hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
-        @click="viewTeam(team.team?.id || team.id)"
-      >
-        <div class="text-center space-y-4">
-          <!-- Team Logo -->
-          <div class="w-20 h-20 rounded-full overflow-hidden mx-auto">
-            <img 
-              v-if="team?.team?.logo || team?.logo" 
-              :src="team?.team?.logo || team?.logo" 
-              :alt="team?.team?.name || team?.name || 'Team'"
-              class="w-full h-full object-cover"
-              @error="$event.target.style.display='none'"
-            />
-            <div 
-              v-else
-              class="w-full h-full bg-gradient-to-br from-epl-blue to-epl-purple flex items-center justify-center"
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <!-- Filters -->
+      <div class="card-enhanced mb-8">
+        <div class="flex items-center space-x-3 mb-6">
+          <div class="w-10 h-10 bg-gradient-to-br from-epl-blue to-epl-purple rounded-xl flex items-center justify-center">
+            <span class="text-white text-lg">🔍</span>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900">Filters & Sorting</h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-lg font-semibold text-gray-700 mb-3">Season</label>
+            <select
+              v-model="filters.season"
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-epl-blue focus:border-transparent bg-white shadow-lg font-medium text-lg"
+              @change="fetchTeams"
             >
-              <span class="text-white text-2xl font-bold">
-                {{ (team?.team?.name || team?.name || 'T')?.charAt(0) }}
+              <option value="2025">2025/26</option>
+              <option value="2024">2024/25</option>
+              <option value="2023">2023/24</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-lg font-semibold text-gray-700 mb-3">Sort By</label>
+            <select
+              v-model="filters.sortBy"
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-epl-blue focus:border-transparent bg-white shadow-lg font-medium text-lg"
+            >
+              <option value="rank">League Position</option>
+              <option value="name">Team Name (A-Z)</option>
+              <option value="name-desc">Team Name (Z-A)</option>
+              <option value="points">Points (High to Low)</option>
+              <option value="points-asc">Points (Low to High)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div v-if="loading" class="text-center py-16">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-epl-blue mx-auto mb-6"></div>
+        <h3 class="text-2xl font-bold text-gray-900 mb-2">Loading Teams</h3>
+        <p class="text-gray-600">Fetching Premier League team data...</p>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="error" class="card-enhanced text-center py-16">
+        <div class="text-8xl mb-6">⚠️</div>
+        <h3 class="text-2xl font-bold text-gray-900 mb-4">Error Loading Teams</h3>
+        <p class="text-gray-600 mb-8 text-lg">{{ error }}</p>
+        <button @click="fetchTeams" class="btn-primary text-lg px-8 py-3">
+          Try Again
+        </button>
+      </div>
+
+      <!-- Teams Grid -->
+      <div v-else-if="sortedTeams.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div
+          v-for="team in sortedTeams"
+          :key="team.team?.id || team.id"
+          class="team-card group"
+          @click="viewTeam(team.team?.id || team.id)"
+        >
+          <div class="text-center space-y-6">
+            <!-- Team Logo -->
+            <div class="team-logo-container">
+              <img 
+                v-if="getTeamLogo(team?.team?.name || team?.name)" 
+                :src="getTeamLogo(team?.team?.name || team?.name)" 
+                :alt="team?.team?.name || team?.name || 'Team'"
+                class="team-logo"
+                @error="$event.target.style.display='none'"
+              />
+              <div 
+                v-else
+                class="team-logo-fallback"
+              >
+                <span class="text-white text-3xl font-bold">
+                  {{ (team?.team?.name || team?.name || 'T')?.charAt(0) }}
+                </span>
+              </div>
+            </div>
+            
+            <!-- Team Name -->
+            <h3 class="text-xl font-bold text-gray-900 group-hover:text-epl-blue transition-colors duration-200">
+              {{ team?.team?.name || team?.name || 'Team Name' }}
+            </h3>
+            
+            <!-- Team Stats -->
+            <div class="team-stats">
+              <div class="stat-row">
+                <span class="stat-label">Position:</span>
+                <span class="stat-value points-badge">{{ getTeamPosition(team) }}</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">Points:</span>
+                <span class="stat-value points-badge">{{ getTeamPoints(team) }}</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">Country:</span>
+                <span class="stat-value">{{ team.team?.country || team?.country || 'England' }}</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">Founded:</span>
+                <span class="stat-value">{{ team.team?.founded || team?.founded || 'N/A' }}</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">Venue:</span>
+                <span class="stat-value">{{ team.venue?.name || team?.venue_name || 'N/A' }}</span>
+              </div>
+            </div>
+            
+            <!-- View Details Button -->
+            <div class="pt-4">
+              <span class="inline-block bg-gradient-to-r from-epl-blue to-epl-purple text-white font-bold py-2 px-6 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:-translate-y-1">
+                View Details
               </span>
             </div>
           </div>
-          
-          <!-- Team Name -->
-          <h3 class="text-lg font-semibold text-gray-900">{{ team?.team?.name || team?.name || 'Team Name' }}</h3>
-          
-          <!-- Team Info -->
-          <div class="space-y-2 text-sm text-gray-600">
-            <div class="flex justify-between">
-              <span>Country:</span>
-              <span class="font-medium">{{ team.team?.country || team?.country || 'England' }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span>Founded:</span>
-              <span class="font-medium">{{ team.team?.founded || team?.founded || 'N/A' }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span>Venue:</span>
-              <span class="font-medium">{{ team.venue?.name || team?.venue_name || 'N/A' }}</span>
-            </div>
-          </div>
-          
-          <!-- Quick Stats -->
-          <div class="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
-            <div class="text-center">
-              <div class="text-lg font-bold text-epl-blue">{{ getTeamPosition(team) }}</div>
-              <div class="text-xs text-gray-500">Position</div>
-            </div>
-            <div class="text-center">
-              <div class="text-lg font-bold text-epl-gold">{{ getTeamPoints(team) }}</div>
-              <div class="text-xs text-gray-500">Points</div>
-            </div>
-          </div>
-          
-          <!-- View Details Button -->
-          <button class="btn-primary w-full mt-4">
-            View Details
-          </button>
         </div>
       </div>
-    </div>
 
-    <!-- Empty State -->
-    <div v-else class="card text-center py-12">
-      <div class="text-6xl mb-4">🏟️</div>
-      <h3 class="text-xl font-semibold text-gray-900 mb-2">No Teams Found</h3>
-      <p class="text-gray-600">Try adjusting your search criteria or filters.</p>
-    </div>
-
-    <!-- Pagination -->
-    <div v-if="sortedTeams.length > 0 && totalPages > 1" class="flex justify-center">
-      <nav class="flex items-center space-x-2">
-        <button
-          @click="changePage(currentPage - 1)"
-          :disabled="currentPage === 1"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Previous
-        </button>
-        
-        <div class="flex items-center space-x-1">
-          <button
-            v-for="page in visiblePages"
-            :key="page"
-            @click="changePage(page)"
-            :class="[
-              'px-3 py-2 text-sm font-medium rounded-lg',
-              page === currentPage
-                ? 'bg-epl-blue text-white'
-                : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-            ]"
-          >
-            {{ page }}
-          </button>
-        </div>
-        
-        <button
-          @click="changePage(currentPage + 1)"
-          :disabled="currentPage === totalPages"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Next
-        </button>
-      </nav>
+      <!-- Empty State -->
+      <div v-else class="card-enhanced text-center py-16">
+        <div class="text-8xl mb-6 animate-bounce-gentle">🏆</div>
+        <h3 class="text-2xl font-bold text-gray-900 mb-4">No Teams Found</h3>
+        <p class="text-gray-600 text-lg">No team data available for the selected season.</p>
+      </div>
     </div>
   </div>
 </template>
@@ -171,6 +157,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { teamsAPI, standingsAPI } from '../services/api'
+import { getTeamLogo } from '../utils/logos'
 
 export default {
   name: 'Teams',
@@ -357,7 +344,8 @@ export default {
       // Helper functions
       getTeamPosition,
       getTeamPoints,
-      getTeamRank
+      getTeamRank,
+      getTeamLogo
     }
   }
 }

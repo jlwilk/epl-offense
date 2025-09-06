@@ -22,8 +22,8 @@
           <!-- Team Logo -->
           <div class="w-32 h-32 rounded-full overflow-hidden">
             <img 
-              v-if="team?.logo" 
-              :src="team.logo" 
+              v-if="getTeamLogo(team?.name)" 
+              :src="getTeamLogo(team?.name)" 
               :alt="team?.name || 'Team'"
               class="w-full h-full object-cover"
               @error="$event.target.style.display='none'"
@@ -331,7 +331,7 @@
             v-for="player in teamPlayers"
             :key="player.id"
             class="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors duration-200 cursor-pointer"
-            @click="viewPlayer(player.id)"
+            @click="viewPlayer(player.player?.id || player.id)"
           >
             <div class="flex items-center space-x-3">
               <div class="w-12 h-12 rounded-full overflow-hidden">
@@ -375,6 +375,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { teamsAPI, fixturesAPI, playerStatsAPI, standingsAPI } from '../services/api'
+import { getTeamLogo } from '../utils/logos'
 
 export default {
   name: 'TeamDetail',
@@ -525,6 +526,11 @@ export default {
     }
 
     const viewPlayer = (playerId) => {
+      console.log('🔍 TeamDetail - Navigating to player:', {
+        playerId,
+        type: typeof playerId,
+        route: `/players/${playerId}`
+      })
       router.push(`/players/${playerId}`)
     }
 
@@ -655,42 +661,43 @@ export default {
       fetchTeamData()
     })
 
-    return {
-      // Reactive data
-      teamId,
-      team,
-      venue,
-      recentFixtures,
-      teamPlayers,
-      teamForm,
-      standings,
-      loading,
-      error,
-      selectedSeason,
-      
-      // Computed properties
-      teamStats,
-      
-      // Functions
-      fetchTeamData,
-      fetchStandings,
-      viewFixture,
-      viewPlayer,
-      
-      // Helper functions
-      getTeamPosition,
-      getTeamPoints,
-      getFormResultClass,
-      getFormResultTitle,
-      getStatusClass,
-      getStatusText,
-      getWinnerClass,
-      formatDate,
-      getPlayerStats,
-      getPlayerPosition,
-      getPlayerGoals,
-      getTotalCards
-    }
+      return {
+        // Reactive data
+        teamId,
+        team,
+        venue,
+        recentFixtures,
+        teamPlayers,
+        teamForm,
+        standings,
+        loading,
+        error,
+        selectedSeason,
+        
+        // Computed properties
+        teamStats,
+        
+        // Functions
+        fetchTeamData,
+        fetchStandings,
+        viewFixture,
+        viewPlayer,
+        
+        // Helper functions
+        getTeamPosition,
+        getTeamPoints,
+        getFormResultClass,
+        getFormResultTitle,
+        getStatusClass,
+        getStatusText,
+        getWinnerClass,
+        formatDate,
+        getPlayerStats,
+        getPlayerPosition,
+        getPlayerGoals,
+        getTotalCards,
+        getTeamLogo
+      }
   }
 }
 </script>

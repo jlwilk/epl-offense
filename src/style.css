@@ -25,8 +25,16 @@
     @apply bg-white rounded-xl shadow-lg border border-gray-100 p-6;
   }
   
+  .card-enhanced {
+    @apply bg-white rounded-2xl shadow-xl border border-gray-100 p-8 backdrop-blur-sm;
+  }
+  
   .stat-card {
     @apply bg-gradient-to-br from-epl-blue to-epl-purple text-white rounded-xl p-4 shadow-lg;
+  }
+  
+  .stat-card-enhanced {
+    @apply bg-gradient-to-br from-epl-blue via-epl-purple to-epl-blue text-white rounded-2xl p-6 shadow-xl border border-white/10 backdrop-blur-sm;
   }
   
   .nav-link {
@@ -36,10 +44,205 @@
   .nav-link-active {
     @apply text-epl-blue bg-blue-50 px-3 py-2 rounded-md text-sm font-medium;
   }
+  
+  .nav-link-enhanced {
+    @apply text-gray-600 hover:text-epl-blue px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-gray-50 hover:shadow-sm;
+  }
+  
+  .nav-link-active-enhanced {
+    @apply text-epl-blue bg-gradient-to-r from-epl-blue/10 to-epl-purple/10 px-4 py-2 rounded-xl text-sm font-medium border border-epl-blue/20 shadow-sm;
+  }
+  
+  /* Background Pattern */
+  .bg-pattern {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2337003c' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  
+  /* Fixture Cards */
+  .fixture-card {
+    @apply rounded-xl p-6 shadow-lg border transition-all duration-300;
+  }
+  
+  .fixture-card-live {
+    @apply bg-gradient-to-r from-epl-blue via-epl-purple to-epl-blue text-white shadow-2xl border-0;
+  }
+  
+  .fixture-card-upcoming {
+    @apply bg-gradient-to-r from-gray-50 to-gray-100 border-gray-200 hover:shadow-xl;
+  }
+  
+  .live-badge {
+    @apply text-xs bg-red-500 text-white px-3 py-1 rounded-full animate-pulse font-bold;
+  }
+  
+  .status-badge {
+    @apply text-xs bg-gray-500 text-white px-3 py-1 rounded-full font-medium;
+  }
+  
+  .team-section {
+    @apply flex items-center space-x-3;
+  }
+  
+  .team-logo {
+    @apply w-12 h-12 rounded-xl overflow-hidden bg-white flex items-center justify-center shadow-md;
+  }
+  
+  .team-logo-fallback-text {
+    @apply text-gray-700 font-bold text-lg;
+  }
+  
+  .team-name {
+    @apply font-semibold text-gray-900 text-lg;
+  }
+  
+  .team-name-live {
+    @apply font-semibold text-white text-lg;
+  }
+  
+  .score-section {
+    @apply text-center;
+  }
+  
+  .score {
+    @apply text-3xl font-bold text-gray-900;
+  }
+  
+  .score-live {
+    @apply text-3xl font-bold text-white;
+  }
+  
+  /* Quick Access Cards */
+  .quick-access-card {
+    @apply bg-white rounded-2xl shadow-lg border border-gray-100 p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2;
+  }
+  
+  .quick-access-icon {
+    @apply w-20 h-20 rounded-2xl flex items-center justify-center mx-auto shadow-lg;
+  }
+  
+  .teams-icon {
+    @apply bg-gradient-to-br from-epl-blue to-epl-purple;
+  }
+  
+  .players-icon {
+    @apply bg-gradient-to-br from-epl-gold to-epl-red;
+  }
+  
+  .fixtures-icon {
+    @apply bg-gradient-to-br from-epl-red to-epl-gold;
+  }
+  
+  .quick-access-btn {
+    @apply inline-block bg-gradient-to-r from-epl-blue to-epl-purple text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1;
+  }
+  
+  /* Performer Cards */
+  .performers-section {
+    @apply space-y-4;
+  }
+  
+  .performer-card {
+    @apply bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-4 hover:shadow-lg transition-all duration-300 border border-gray-200;
+  }
+  
+  .rank-badge {
+    @apply w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md;
+  }
+  
+  .rank-gold {
+    @apply bg-gradient-to-br from-epl-gold to-yellow-500 text-white font-bold text-lg;
+  }
+  
+  .rank-blue {
+    @apply bg-gradient-to-br from-epl-blue to-epl-purple text-white font-bold text-lg;
+  }
+  
+  /* Player Photos */
+  .player-photo {
+    @apply w-12 h-12 rounded-xl overflow-hidden bg-gradient-to-br from-epl-blue to-epl-purple flex items-center justify-center shadow-md;
+  }
+  
+  .player-photo-fallback {
+    @apply w-full h-full bg-gradient-to-br from-epl-blue to-epl-purple flex items-center justify-center;
+  }
+  
+  /* Team Cards */
+  .team-card {
+    @apply bg-white rounded-2xl shadow-lg border border-gray-100 p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer;
+  }
+  
+  .team-logo-container {
+    @apply w-28 h-28 rounded-2xl overflow-hidden mx-auto shadow-lg;
+  }
+  
+  .team-logo {
+    @apply w-full h-full object-cover;
+  }
+  
+  .team-logo-fallback {
+    @apply w-full h-full bg-gradient-to-br from-epl-blue to-epl-purple flex items-center justify-center;
+  }
+  
+  .team-stats {
+    @apply space-y-3;
+  }
+  
+  .stat-row {
+    @apply flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0;
+  }
+  
+  .stat-label {
+    @apply text-sm text-gray-600 font-medium;
+  }
+  
+  .stat-value {
+    @apply text-sm font-bold text-gray-900;
+  }
+  
+  .points-badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-gradient-to-r from-epl-blue to-epl-purple text-white shadow-md;
+  }
+  
+  /* Quick Action Buttons */
+  .quick-action-btn {
+    @apply flex items-center px-6 py-3 bg-white border-2 border-gray-300 rounded-xl font-semibold text-gray-700 hover:border-epl-blue hover:text-epl-blue transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1;
+  }
+  
+  .quick-action-btn-active {
+    @apply bg-gradient-to-r from-epl-blue to-epl-purple border-epl-blue text-white shadow-xl;
+  }
 }
 
 @layer utilities {
   .text-gradient {
     @apply bg-gradient-to-r from-epl-blue to-epl-purple bg-clip-text text-transparent;
+  }
+  
+  .animate-bounce-gentle {
+    animation: bounceGentle 2s infinite;
+  }
+  
+  @keyframes bounceGentle {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+  
+  .animate-slide-down {
+    animation: slideDown 0.2s ease-out;
+  }
+  
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
