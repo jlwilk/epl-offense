@@ -110,10 +110,22 @@
                       <!-- Team -->
                       <td class="px-6 py-6 whitespace-nowrap">
                         <div class="flex items-center">
-                          <div class="w-12 h-12 bg-gradient-to-br from-epl-blue to-epl-purple rounded-xl flex items-center justify-center mr-4 shadow-lg group-hover:shadow-glow transition-all duration-300">
-                            <span class="text-white text-lg font-bold">
-                              {{ team?.team?.name?.charAt(0) || 'T' }}
-                            </span>
+                          <div class="w-12 h-12 rounded-xl overflow-hidden mr-4 shadow-lg group-hover:shadow-glow transition-all duration-300">
+                            <img 
+                              v-if="getTeamLogo(team?.team?.name)" 
+                              :src="getTeamLogo(team?.team?.name)" 
+                              :alt="team?.team?.name || 'Team'"
+                              class="w-full h-full object-cover"
+                              @error="$event.target.style.display='none'"
+                            />
+                            <div 
+                              v-else
+                              class="w-full h-full bg-gradient-to-br from-epl-blue to-epl-purple flex items-center justify-center"
+                            >
+                              <span class="text-white text-lg font-bold">
+                                {{ team?.team?.name?.charAt(0) || 'T' }}
+                              </span>
+                            </div>
                           </div>
                           <div>
                             <div class="text-lg font-bold text-gray-900 group-hover:text-epl-blue transition-colors duration-200">
@@ -225,10 +237,22 @@
                         {{ team.rank }}
                       </span>
                       <div class="flex items-center space-x-2">
-                        <div class="w-8 h-8 bg-gradient-to-br from-epl-blue to-epl-purple rounded-lg flex items-center justify-center">
-                          <span class="text-white text-sm font-bold">
-                            {{ team?.team?.name?.charAt(0) || 'T' }}
-                          </span>
+                        <div class="w-8 h-8 rounded-lg overflow-hidden">
+                          <img 
+                            v-if="getTeamLogo(team?.team?.name)" 
+                            :src="getTeamLogo(team?.team?.name)" 
+                            :alt="team?.team?.name || 'Team'"
+                            class="w-full h-full object-cover"
+                            @error="$event.target.style.display='none'"
+                          />
+                          <div 
+                            v-else
+                            class="w-full h-full bg-gradient-to-br from-epl-blue to-epl-purple flex items-center justify-center"
+                          >
+                            <span class="text-white text-sm font-bold">
+                              {{ team?.team?.name?.charAt(0) || 'T' }}
+                            </span>
+                          </div>
                         </div>
                         <div>
                           <div class="font-bold text-gray-900 text-sm">
@@ -346,6 +370,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { standingsAPI } from '../services/api'
+import { getTeamLogo } from '../utils/logos'
 
 export default {
   name: 'Standings',
@@ -440,7 +465,8 @@ export default {
       getPositionClass,
       getPositionBadgeClass,
       getFormResultClass,
-      getFormResultTitle
+      getFormResultTitle,
+      getTeamLogo
     }
   }
 }

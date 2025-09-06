@@ -88,8 +88,8 @@
             <!-- Team Logo -->
             <div class="team-logo-container">
               <img 
-                v-if="team?.team?.logo || team?.logo" 
-                :src="team?.team?.logo || team?.logo" 
+                v-if="getTeamLogo(team?.team?.name || team?.name)" 
+                :src="getTeamLogo(team?.team?.name || team?.name)" 
                 :alt="team?.team?.name || team?.name || 'Team'"
                 class="team-logo"
                 @error="$event.target.style.display='none'"
@@ -157,6 +157,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { teamsAPI, standingsAPI } from '../services/api'
+import { getTeamLogo } from '../utils/logos'
 
 export default {
   name: 'Teams',
@@ -343,7 +344,8 @@ export default {
       // Helper functions
       getTeamPosition,
       getTeamPoints,
-      getTeamRank
+      getTeamRank,
+      getTeamLogo
     }
   }
 }

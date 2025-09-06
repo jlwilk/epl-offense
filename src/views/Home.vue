@@ -147,15 +147,20 @@
                   <div class="team-section">
                     <div class="team-logo">
                       <img 
-                        v-if="fixture.teams?.home?.logo" 
-                        :src="fixture.teams.home.logo" 
+                        v-if="getTeamLogo(fixture.teams?.home?.name)" 
+                        :src="getTeamLogo(fixture.teams?.home?.name)" 
                         :alt="fixture.teams.home.name"
                         class="w-full h-full object-cover"
                         @error="$event.target.style.display='none'"
                       />
-                      <!-- <span :class="isLiveFixture(fixture) ? 'text-epl-blue font-bold text-lg' : 'text-gray-700 font-bold text-lg'">
-                        {{ (fixture.teams?.home?.name || 'H')?.charAt(0) }}
-                      </span> -->
+                      <div 
+                        v-else
+                        class="w-full h-full bg-gradient-to-br from-epl-blue to-epl-purple flex items-center justify-center"
+                      >
+                        <span :class="isLiveFixture(fixture) ? 'text-white font-bold text-lg' : 'text-white font-bold text-lg'">
+                          {{ (fixture.teams?.home?.name || 'H')?.charAt(0) }}
+                        </span>
+                      </div>
                     </div>
                     <span :class="isLiveFixture(fixture) ? 'team-name-live' : 'team-name'">
                       {{ fixture.teams?.home?.name }}
@@ -179,15 +184,20 @@
                     </span>
                     <div class="team-logo">
                       <img 
-                        v-if="fixture.teams?.away?.logo" 
-                        :src="fixture.teams.away.logo" 
+                        v-if="getTeamLogo(fixture.teams?.away?.name)" 
+                        :src="getTeamLogo(fixture.teams?.away?.name)" 
                         :alt="fixture.teams.away.name"
                         class="w-full h-full object-cover"
                         @error="$event.target.style.display='none'"
                       />
-                      <!-- <span :class="isLiveFixture(fixture) ? 'text-epl-blue font-bold text-lg' : 'text-gray-700 font-bold text-lg'">
-                        {{ (fixture.teams?.away?.name || 'A')?.charAt(0) }}
-                      </span> -->
+                      <div 
+                        v-else
+                        class="w-full h-full bg-gradient-to-br from-epl-blue to-epl-purple flex items-center justify-center"
+                      >
+                        <span :class="isLiveFixture(fixture) ? 'text-white font-bold text-lg' : 'text-white font-bold text-lg'">
+                          {{ (fixture.teams?.away?.name || 'A')?.charAt(0) }}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -378,6 +388,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { fixturesAPI, playerStatsAPI } from '../services/api'
+import { getTeamLogo } from '../utils/logos'
 
 export default {
   name: 'Home',
@@ -751,7 +762,8 @@ export default {
       getFixtureTimeDisplay,
       getStatusText,
       formatMatchTime,
-      viewPlayer
+      viewPlayer,
+      getTeamLogo
     }
   }
 }

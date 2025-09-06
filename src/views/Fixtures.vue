@@ -206,14 +206,22 @@
           <div class="flex items-center justify-center space-x-8">
             <!-- Home Team -->
             <div class="team-section">
-              <div class="team-logo">
+              <div class="w-12 h-12 rounded-xl overflow-hidden shadow-lg">
                 <img 
-                  v-if="fixture.teams?.home?.logo" 
-                  :src="fixture.teams.home.logo" 
+                  v-if="getTeamLogo(fixture.teams?.home?.name)" 
+                  :src="getTeamLogo(fixture.teams.home.name)" 
                   :alt="fixture.teams.home.name"
                   class="w-full h-full object-cover"
                   @error="$event.target.style.display='none'"
                 />
+                <div 
+                  v-else
+                  class="w-full h-full bg-gradient-to-br from-epl-blue to-epl-purple flex items-center justify-center"
+                >
+                  <span class="text-white text-lg font-bold">
+                    {{ fixture.teams?.home?.name?.charAt(0) || 'T' }}
+                  </span>
+                </div>
               </div>
                               <span :class="isLiveFixture(fixture) ? 'team-name-live' : 'team-name'">
                   {{ fixture.teams?.home?.name }}
@@ -235,14 +243,22 @@
                               <span :class="isLiveFixture(fixture) ? 'team-name-live' : 'team-name'">
                   {{ fixture.teams?.away?.name }}
                 </span>
-              <div class="team-logo">
+              <div class="w-12 h-12 rounded-xl overflow-hidden shadow-lg">
                 <img 
-                  v-if="fixture.teams?.away?.logo" 
-                  :src="fixture.teams.away.logo" 
+                  v-if="getTeamLogo(fixture.teams?.away?.name)" 
+                  :src="getTeamLogo(fixture.teams.away.name)" 
                   :alt="fixture.teams.away.name"
                   class="w-full h-full object-cover"
                   @error="$event.target.style.display='none'"
                 />
+                <div 
+                  v-else
+                  class="w-full h-full bg-gradient-to-br from-epl-blue to-epl-purple flex items-center justify-center"
+                >
+                  <span class="text-white text-lg font-bold">
+                    {{ fixture.teams?.away?.name?.charAt(0) || 'T' }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -263,6 +279,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { fixturesAPI } from '../services/api'
+import { getTeamLogo } from '../utils/logos'
 
 export default {
   name: 'Fixtures',
@@ -516,7 +533,8 @@ export default {
       isLiveFixture,
       getFixtureStatus,
       getFixtureTime,
-      getFixtureTimeDisplay
+      getFixtureTimeDisplay,
+      getTeamLogo
     }
   }
 }
